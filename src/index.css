@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Helvetica Neue', Arial, "Noto Sans JP", 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+  
+  --color-editorial-navy: #002D62;
+  --color-editorial-white: #F8F9FA;
+  --color-editorial-gold: #B8860B;
+  --color-editorial-highlight: #FFD700;
+  --color-editorial-green: #06C755;
+  --color-editorial-gray: #4A4A4A;
+  --color-editorial-border: #E1E4E8;
+}
+
+@layer base {
+  body {
+    @apply bg-editorial-white text-editorial-navy antialiased;
+  }
+}
+
+.editorial-grid {
+  @apply grid grid-cols-1 md:grid-cols-12 gap-0 border-t-2 border-editorial-navy;
+}
+
+.editorial-section {
+  @apply p-8 border-b border-editorial-border md:border-b-0 md:border-r border-editorial-border flex flex-col;
+}
+
+.editorial-section:last-child {
+  @apply border-r-0;
+}
+
+.section-label {
+  @apply text-[11px] uppercase tracking-[0.2em] text-editorial-gold mb-6 pb-2 border-b border-editorial-border font-bold;
+}
+
+.editorial-step-num {
+  @apply w-6 h-6 border border-editorial-navy rounded-full flex items-center justify-center text-xs font-bold shrink-0;
+}
+
+.editorial-card {
+  @apply bg-white border border-editorial-border p-6 transition-colors;
+}
+
+.editorial-hero {
+  @apply bg-editorial-navy text-white;
+}
+
+.highlight-text {
+  @apply text-editorial-highlight;
+}

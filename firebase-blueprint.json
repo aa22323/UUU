@@ -1,0 +1,96 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique user ID" },
+        "name": { "type": "string", "description": "Display name" },
+        "email": { "type": "string", "format": "email", "description": "User email (if provided)" },
+        "method": { "type": "string", "enum": ["line", "email", "google"], "description": "Auth provider" },
+        "referralCode": { "type": "string", "description": "User's unique referral code" },
+        "referralCount": { "type": "number", "description": "Number of users invited" },
+        "referralBonus": { "type": "number", "description": "Cumulative interest bonus from referrals" },
+        "invitedByCode": { "type": "string", "description": "The invitation code used by this user to join" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation timestamp" },
+        "role": { "type": "string", "enum": ["user", "admin"], "description": "User role" },
+        "customApy": { "type": "number", "description": "Individual interest rate (APY) for this user, if set" }
+      },
+      "required": ["uid", "name", "createdAt", "role"]
+    },
+    "Portfolio": {
+      "title": "Portfolio",
+      "description": "User asset balances",
+      "type": "object",
+      "properties": {
+        "principalBalance": { "type": "number", "description": "Deposited principal in USDT" },
+        "totalEarnings": { "type": "number", "description": "Accumulated earnings in USDT" },
+        "lastUpdated": { "type": "string", "format": "date-time", "description": "Last balance update" }
+      },
+      "required": ["principalBalance", "totalEarnings", "lastUpdated"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Historical deposit or withdrawal",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["deposit", "withdrawal"], "description": "Transfer type" },
+        "amount": { "type": "number", "description": "Transaction amount in USDT" },
+        "status": { "type": "string", "enum": ["pending", "completed", "failed"], "description": "Current status" },
+        "network": { "type": "string", "enum": ["TRC20", "ERC20"], "description": "Blockchain network" },
+        "address": { "type": "string", "description": "Target or source wallet address" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "When it occurred" }
+      },
+      "required": ["type", "amount", "status", "timestamp"]
+    },
+    "Referral": {
+      "title": "Referral",
+      "description": "Record of a successful invitation",
+      "type": "object",
+      "properties": {
+        "invitedUid": { "type": "string", "description": "ID of the person who joined" },
+        "name": { "type": "string", "description": "Masked name of the invited user" },
+        "rewardAmount": { "type": "number", "description": "Bonus reward earned for this invite" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "When they joined" }
+      },
+      "required": ["invitedUid", "name", "rewardAmount", "timestamp"]
+    },
+    "SystemSettings": {
+      "title": "System Settings",
+      "description": "Global application configuration",
+      "type": "object",
+      "properties": {
+        "customerServiceUrl": { "type": "string", "description": "Link to help/support" },
+        "customerServiceQr": { "type": "string", "description": "QR Code image for support (Base64 or URL)" },
+        "depositWalletTrc20": { "type": "string", "description": "Platform's TRC20 wallet address" },
+        "qrCodeTrc20": { "type": "string", "description": "QR Code image for TRC20 wallet" },
+        "depositWalletErc20": { "type": "string", "description": "Platform's ERC20 wallet address" },
+        "qrCodeErc20": { "type": "string", "description": "QR Code image for ERC20 wallet" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update timestamp" }
+      }
+    }
+  },
+  "firestore": {
+    "/settings/system": {
+      "schema": "SystemSettings",
+      "description": "Global singleton for site-wide settings"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Stores core user profile and role"
+    },
+    "/users/{userId}/portfolio/main": {
+      "schema": "Portfolio",
+      "description": "Stores real-time asset balances"
+    },
+    "/users/{userId}/transactions/{txId}": {
+      "schema": "Transaction",
+      "description": "Chronological history of all funds movements"
+    },
+    "/users/{userId}/referrals/{refId}": {
+      "schema": "Referral",
+      "description": "List of users invited by this member"
+    }
+  }
+}

@@ -1,0 +1,59 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
+        (request.auth.token.email == "oopqwe001@gmail.com" && request.auth.token.email_verified == true);
+    }
+    
+    function isValidPortfolio(data) {
+      return data.principalBalance is number && data.principalBalance >= 0 &&
+             data.totalEarnings is number && data.totalEarnings >= 0 &&
+             data.lastUpdated is timestamp;
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && request.resource.data.role == 'user';
+      allow update: if (isOwner(userId) && request.resource.data.role == resource.data.role) || isAdmin();
+
+      match /portfolio/main {
+        allow read: if isOwner(userId) || isAdmin();
+        allow write: if isOwner(userId) && isValidPortfolio(request.resource.data);
+      }
+
+      match /transactions/{txId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId);
+        allow update: if isAdmin();
+      }
+
+      match /referrals/{refId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isAdmin(); // Referrals are usually system-created
+        allow update: if isAdmin();
+      }
+    }
+
+    match /settings/system {
+      allow read: if true; // Everyone needs to see support links and wallet addresses
+      allow write: if isAdmin();
+    }
+    
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
