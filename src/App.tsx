@@ -264,7 +264,67 @@ const TRANSLATIONS: Record<string, any> = {
     reject: "却下",
     saveSettings: "設定を保存",
     customerService: "カスタマーサポート",
-    platformWallet: "運営受取用ウォレット"
+    platformWallet: "運営受取用ウォレット",
+    'adminAuthTitle': "管理者認証",
+    'adminAuthDesc': "管理パネルにアクセスするには、6桁のセキュリティコードを入力してください。",
+    'adminAuthPlaceholder': "コードを入力",
+    'adminAuthError': "コードが正しくありません。再試行してください。",
+    'adminCodeSetting': "管理パネル・アクセスコード",
+    'adminCodeNote': "※管理パネルへの二次認証コードを設定します（6桁推奨）。",
+    'verify': "認証する",
+    usdDefense: "USD DEFENSE",
+    prepLab: "PREP LAB",
+    assetDefenseLabel: "Digital Asset Defense",
+    liveIndicator: "LIVE",
+    verAlphaCode: "VER 0.8.2 ALPHA EDITION",
+    allRightsReserved: "ALL RIGHTS RESERVED",
+    kizunaLogoFull: "Kizuna Digital Asset Defense Lab",
+    repNameSato: "佐藤 健二郎",
+    repTitleSato: "KIZUNA 設立準備責任者",
+    usdtBadge: "USDT",
+    adminPanelTitle: "KIZUNA ADMIN",
+    exitAdminBtn: "退出后台",
+    contentMgmtSystem: "コンテンツ管理システム",
+    superAdmin: "特権管理者",
+    totalUsersAdmin: "総ユーザー数",
+    totalDepositsAdmin: "総預入額 (USDT)",
+    totalEarningsDistAdmin: "収益配分合計 (USDT)",
+    pendingAuditsAdmin: "待機中の審査",
+    recentActiveUsers: "最近のアクティブユーザー",
+    sysStatus: "システム稼働状況",
+    opNormal: "正常に稼働中",
+    opNormalDesc: "すべてのブロックチェーン同期サービスは正常に動作しています。",
+    pendingReview: "審査待ち",
+    noPendingRequests: "未処理の申請はありません",
+    depositAction: "預入",
+    withdrawAction: "出金",
+    approveBtn: "承認",
+    rejectBtn: "拒否",
+    userListTitle: "ユーザーリスト",
+    searchUserPlaceholder: "ユーザーを検索...",
+    userInfoHeader: "ユーザー情報",
+    principalHeader: "本金 (USDT)",
+    earningsHeader: "収益 (USDT)",
+    apyHeader: "利率 (APY)",
+    roleHeader: "権限",
+    actionHeader: "操作",
+    sysConfigTitle: "システムパラメータ設定",
+    customerServiceUrlLabel: "カスタマーサポートURL (Telegram/Line)",
+    customerServiceQrLabel: "カスタマーサポートQRコード",
+    platformWalletTrc20Label: "プラットフォーム受取アドレス (TRC20)",
+    qrCodeTrc20Label: "TRC20 受取用QR",
+    platformWalletErc20Label: "プラットフォーム受取アドレス (ERC20)",
+    qrCodeErc20Label: "ERC20 受取用QR",
+    editUserTitle: "ユーザー編集",
+    userNameLabel: "ユーザー名",
+    customApyLabel: "個別APY設定 (%)",
+    setAccountRole: "アカウント権限",
+    saveChangesBtn: "変更を保存",
+    fixedRate: "固定",
+    sysDefault: "システムデフォルト",
+    interestEarningLabel: "利息収益",
+    initialDepositLabel: "初回預入",
+    inviteLineMsg: "【KIZUNA PREP LAB】次世代USDT運用で資産を守る。今なら招待コード入力で利率アップ！\n招待コード：{code}\n参加はこちら：{url}"
   },
   en: {
     heroTitle: "Defending Your Assets\nfrom Inflation\nIntelligently.",
@@ -450,7 +510,67 @@ const TRANSLATIONS: Record<string, any> = {
     customerService: "Customer Support",
     platformWallet: "Platform Wallet",
     supportQrTitle: "Customer Support QR",
-    selectLanguage: "SELECT LANGUAGE"
+    selectLanguage: "SELECT LANGUAGE",
+    'adminAuthTitle': "Admin Verification",
+    'adminAuthDesc': "Please enter the 6-digit security code to access the Admin Panel.",
+    'adminAuthPlaceholder': "Enter Code",
+    'adminAuthError': "Incorrect code. Please try again.",
+    'adminCodeSetting': "Admin Access Code",
+    'adminCodeNote': "* Secondary verification code for Admin Panel (6 digits recommended).",
+    'verify': "Verify",
+    usdDefense: "USD DEFENSE",
+    prepLab: "PREP LAB",
+    assetDefenseLabel: "Digital Asset Defense",
+    liveIndicator: "LIVE",
+    verAlphaCode: "VER 0.8.2 ALPHA EDITION",
+    allRightsReserved: "ALL RIGHTS RESERVED",
+    kizunaLogoFull: "Kizuna Digital Asset Defense Lab",
+    repNameSato: "Kenjiro Sato",
+    repTitleSato: "KIZUNA PREP LAB Representative",
+    usdtBadge: "USDT",
+    adminPanelTitle: "KIZUNA ADMIN",
+    exitAdminBtn: "Exit Admin",
+    contentMgmtSystem: "Content Management System",
+    superAdmin: "Super Admin",
+    totalUsersAdmin: "Total Users",
+    totalDepositsAdmin: "Total Deposits (USDT)",
+    totalEarningsDistAdmin: "Earnings Distributed (USDT)",
+    pendingAuditsAdmin: "Pending Audits",
+    recentActiveUsers: "Recent Active Users",
+    sysStatus: "System Status",
+    opNormal: "Operational",
+    opNormalDesc: "All blockchain sync services are currently operational.",
+    pendingReview: "Pending Review",
+    noPendingRequests: "No pending requests",
+    depositAction: "Deposit",
+    withdrawAction: "Withdrawal",
+    approveBtn: "Approve",
+    rejectBtn: "Reject",
+    userListTitle: "User List",
+    searchUserPlaceholder: "Search users...",
+    userInfoHeader: "User Info",
+    principalHeader: "Principal (USDT)",
+    earningsHeader: "Earnings (USDT)",
+    apyHeader: "Yield (APY)",
+    roleHeader: "Role",
+    actionHeader: "Actions",
+    sysConfigTitle: "System Configuration",
+    customerServiceUrlLabel: "Support URL (Telegram/Line)",
+    customerServiceQrLabel: "Support QR Code",
+    platformWalletTrc20Label: "Platform Wallet (TRC20)",
+    qrCodeTrc20Label: "TRC20 QR Code",
+    platformWalletErc20Label: "Platform Wallet (ERC20)",
+    qrCodeErc20Label: "ERC20 QR Code",
+    editUserTitle: "Edit User",
+    userNameLabel: "User Name",
+    customApyLabel: "Custom APY (%)",
+    setAccountRole: "Account Role",
+    saveChangesBtn: "Save Changes",
+    fixedRate: "Fixed",
+    sysDefault: "System Default",
+    interestEarningLabel: "Interest Earning",
+    initialDepositLabel: "Initial Deposit",
+    inviteLineMsg: "【KIZUNA PREP LAB】Protect assets with next-gen USDT yield. Use my invite code for a yield boost!\nInvite Code: {code}\nJoin here: {url}"
   },
   tr: {
     heroTitle: "Varlıklarınızı\nEnflasyondan\nZekice Koruyun.",
@@ -532,7 +652,14 @@ const TRANSLATIONS: Record<string, any> = {
     customerService: "Müşteri Hizmetleri",
     saveSettings: "Ayarları Kaydet",
     close: "Kapat",
-    selectLanguage: "DİL SEÇİN"
+    selectLanguage: "DİL SEÇİN",
+    'adminAuthTitle': "Yönetici Doğrulaması",
+    'adminAuthDesc': "Yönetici Paneline erişmek için lütfen 6 haneli güvenlik kodunu girin.",
+    'adminAuthPlaceholder': "Kodu Girin",
+    'adminAuthError': "Hatalı kod. Lütfen tekrar deneyin.",
+    'adminCodeSetting': "Yönetici Erişim Kodu",
+    'adminCodeNote': "* Yönetici Paneli için ikincil doğrulama kodu (6 hane önerilir).",
+    'verify': "Doğrula"
   },
   cn: {
     heroTitle: "「抵御日元贬值与通胀，\n睿智守护\n您的重要资产。」",
@@ -666,7 +793,67 @@ const TRANSLATIONS: Record<string, any> = {
     saveSettings: "保存设置",
     customerService: "客服组件",
     platformWallet: "平台收款地址",
-    selectLanguage: "选择语言"
+    selectLanguage: "选择语言",
+    'adminAuthTitle': "管理员身份验证",
+    'adminAuthDesc': "进入管理后台需要二次验证，请输入 6 位安全代码。",
+    'adminAuthPlaceholder': "请输入安全代码",
+    'adminAuthError': "安全代码错误，请重试。",
+    'adminCodeSetting': "管理后台访问代码",
+    'adminCodeNote': "* 设置进入管理后台的二次验证代码（建议 6 位数字）。",
+    'verify': "验证进入",
+    usdDefense: "USD DEFENSE",
+    prepLab: "PREP LAB",
+    assetDefenseLabel: "数字资产防御",
+    liveIndicator: "LIVE",
+    verAlphaCode: "VER 0.8.2 ALPHA EDITION",
+    allRightsReserved: "ALL RIGHTS RESERVED",
+    kizunaLogoFull: "KIZUNA 数字资产防御实验室",
+    repNameSato: "佐藤 健二郎",
+    repTitleSato: "KIZUNA 筹备室代表",
+    usdtBadge: "USDT",
+    adminPanelTitle: "KIZUNA ADMIN",
+    exitAdminBtn: "退出后台",
+    contentMgmtSystem: "内容管理系统",
+    superAdmin: "超级管理员",
+    totalUsersAdmin: "总用户数",
+    totalDepositsAdmin: "总充值额 (USDT)",
+    totalEarningsDistAdmin: "总收益发放 (USDT)",
+    pendingAuditsAdmin: "待处理审核",
+    recentActiveUsers: "最近活跃用户",
+    sysStatus: "系统运行状态",
+    opNormal: "运行正常",
+    opNormalDesc: "所有区块链同步服务目前均处于正常运行状态。",
+    pendingReview: "审核中",
+    noPendingRequests: "暂无待处理请求",
+    depositAction: "充值",
+    withdrawAction: "提现",
+    approveBtn: "批准",
+    rejectBtn: "拒绝",
+    userListTitle: "用户列表",
+    searchUserPlaceholder: "搜索用户...",
+    userInfoHeader: "用户信息",
+    principalHeader: "本金 (USDT)",
+    earningsHeader: "收益 (USDT)",
+    apyHeader: "利率 (APY)",
+    roleHeader: "角色",
+    actionHeader: "操作",
+    sysConfigTitle: "系统参数配置",
+    customerServiceUrlLabel: "客服链接 (Telegram/Line)",
+    customerServiceQrLabel: "客服 QR 二维码",
+    platformWalletTrc20Label: "平台收款地址 (TRC20)",
+    qrCodeTrc20Label: "TRC20 收款二维码",
+    platformWalletErc20Label: "平台收款地址 (ERC20)",
+    qrCodeErc20Label: "ERC20 收款二维码",
+    editUserTitle: "编辑用户",
+    userNameLabel: "用户名",
+    customApyLabel: "定制 APY (%)",
+    setAccountRole: "账户角色",
+    saveChangesBtn: "保存修改",
+    fixedRate: "固定",
+    sysDefault: "系统默认",
+    interestEarningLabel: "利息收益",
+    initialDepositLabel: "首次充值",
+    inviteLineMsg: "【KIZUNA PREP LAB】通过下一代 USDT 收益保护资产。使用我的邀请码即可提升收益率！\n邀请码：{code}\n点击加入：{url}"
   },
   tw: {
     heroTitle: "「抵禦日元貶值與通脹，\n睿智守護\n您的重要資產。」",
@@ -782,7 +969,14 @@ const TRANSLATIONS: Record<string, any> = {
     growthRatio: "收益佔比",
     version: "版本",
     progress: "進度",
-    selectLanguage: "選擇語言"
+    selectLanguage: "選擇語言",
+    'adminAuthTitle': "管理員身份驗證",
+    'adminAuthDesc': "進入管理後台需要二次驗證，請輸入 6 位安全代碼。",
+    'adminAuthPlaceholder': "請輸入安全代碼",
+    'adminAuthError': "安全代碼錯誤，請重試。",
+    'adminCodeSetting': "管理後台訪問代碼",
+    'adminCodeNote': "* 設置進入管理後台的二次驗證代碼（建議 6 位數字）。",
+    'verify': "驗證進入"
   },
   kr: {
     heroTitle: "「엔저·인플레이션으로부터,\n소중한 자산을\n현명하게 지키다.」",
@@ -966,7 +1160,14 @@ const TRANSLATIONS: Record<string, any> = {
     reject: "거절",
     saveSettings: "설정 저장",
     customerService: "고객 지원",
-    platformWallet: "운영용 지갑"
+    platformWallet: "운영용 지갑",
+    'adminAuthTitle': "관리자 인증",
+    'adminAuthDesc': "관리자 패널에 접속하려면 6자리 보안 코드를 입력하십시오.",
+    'adminAuthPlaceholder': "코드 입력",
+    'adminAuthError': "코드가 올바르지 않습니다. 다시 시도하십시오.",
+    'adminCodeSetting': "관리자 접속 코드",
+    'adminCodeNote': "* 관리자 패널 보조 인증 코드 (6자리 권장).",
+    'verify': "인증"
   },
   ru: {
     heroTitle: "Защитите свои активы от инфляции с умом.",
@@ -1046,7 +1247,14 @@ const TRANSLATIONS: Record<string, any> = {
     ctaTitle: "Получить информацию о подготовке к обороне",
     ctaButton: "Открыть счет (бесплатно)",
     lineCta: "Начать с официальной интеграцией LINE",
-    securityFooter: "Ваша информация строго защищена передовыми технологиями шифрования"
+    securityFooter: "Ваша информация строго защищена передовыми технологиями шифрования",
+    'adminAuthTitle': "Проверка администратора",
+    'adminAuthDesc': "Введите 6-значный код безопасности для доступа к панели администратора.",
+    'adminAuthPlaceholder': "Введите код",
+    'adminAuthError': "Неверный код. Пожалуйста, попробуйте еще раз.",
+    'adminCodeSetting': "Код доступа администратора",
+    'adminCodeNote': "* Дополнительный код подтверждения для панели администратора (рекомендуется 6 цифр).",
+    'verify': "Проверить"
   },
   hi: {
     heroTitle: "अपनी संपत्ति को\nमुद्रास्फीति से\nचतुराई से बचाएं।",
@@ -1068,14 +1276,145 @@ const TRANSLATIONS: Record<string, any> = {
     logout: "लॉगआउट",
     supportQrTitle: "ग्राहक सहायता QR",
     close: "बंद करें",
-    selectLanguage: "भाषा चुनें"
+    selectLanguage: "भाषा चुनें",
+    'adminAuthTitle': "एडमिन सत्यापन",
+    'adminAuthDesc': "एडमिन पैनल तक पहुंचने के लिए कृपया 6 अंकों का सुरक्षा कोड दर्ज करें।",
+    'adminAuthPlaceholder': "कोड दर्ज करें",
+    'adminAuthError': "गलत कोड। कृपया पुनः प्रयास करें।",
+    'adminCodeSetting': "एडमिन एक्सेस कोड",
+    'adminCodeNote': "* एडमिन पैनल के लिए माध्यमिक सत्यापन कोड (6 अंकों की सिफारिश)।",
+    'verify': "सत्यापित करें",
+    historyTitle: "संपत्ति इतिहास",
+    earningRecords: "आय रिकॉर्ड",
+    capitalChanges: "पूंजी परिवर्तन",
+    noEarnings: "कोई आय डेटा नहीं। कृपया पहली गणना तक प्रतीक्षा करें।",
+    noCapital: "कोई पूंजी संचलन रिकॉर्ड नहीं।",
+    withdrawApply: "निकासी आवेदन",
+    addDeposit: "जमा जोड़ें",
+    recentEarnings: "हाल की आय",
+    viewAll: "सभी देखें",
+    accrued: "अर्जित",
+    usdDefense: "USD DEFENSE",
+    prepLab: "PREP LAB",
+    assetDefenseLabel: "डिजिटल संपत्ति रक्षा",
+    liveIndicator: "LIVE",
+    verAlphaCode: "VER 0.8.2 ALPHA EDITION",
+    allRightsReserved: "सर्वाधिकार सुरक्षित",
+    kizunaLogoFull: "Kizuna डिजिटल एसेट डिफेंस लैब",
+    repNameSato: "केंजीरो सातो",
+    repTitleSato: "KIZUNA तैयारी कक्ष प्रतिनिधि",
+    usdtBadge: "USDT",
+    adminPanelTitle: "KIZUNA ADMIN",
+    exitAdminBtn: "एडमिन पैनल से बाहर निकलें",
+    contentMgmtSystem: "सामग्री प्रबंधन प्रणाली",
+    superAdmin: "सुपर एडमिन",
+    totalUsersAdmin: "कुल उपयोगकर्ता",
+    totalDepositsAdmin: "कुल जमा (USDT)",
+    totalEarningsDistAdmin: "कुल वितरित आय (USDT)",
+    pendingAuditsAdmin: "लंबित ऑडिट",
+    recentActiveUsers: "हाल के सक्रिय उपयोगकर्ता",
+    sysStatus: "सिस्टम की स्थिति",
+    opNormal: "सामान्य संचालन",
+    opNormalDesc: "सभी ब्लॉकचेन सिंक सेवाएं वर्तमान में चालू हैं।",
+    pendingReview: "समीक्षा लंबित",
+    noPendingRequests: "कोई लंबित अनुरोध नहीं",
+    depositAction: "जमा",
+    withdrawAction: "निकासी",
+    approveBtn: "स्वीकार करें",
+    rejectBtn: "अस्वीकार करें",
+    userListTitle: "उपयोगकर्ता सूची",
+    searchUserPlaceholder: "उपयोगकर्ता खोजें...",
+    userInfoHeader: "उपयोगकर्ता जानकारी",
+    principalHeader: "मूलधन (USDT)",
+    earningsHeader: "आय (USDT)",
+    apyHeader: "पैदावार (APY)",
+    roleHeader: "भूमिका",
+    actionHeader: "कार्रवाई",
+    sysConfigTitle: "सिस्टम कॉन्फ़िगरेशन",
+    customerServiceUrlLabel: "सपोर्ट URL (Telegram/Line)",
+    customerServiceQrLabel: "सपोर्ट QR कोड",
+    platformWalletTrc20Label: "प्लेटफ़ॉर्म वॉलेट (TRC20)",
+    qrCodeTrc20Label: "TRC20 QR कोड",
+    platformWalletErc20Label: "प्लेटफ़ॉर्म वॉलेट (ERC20)",
+    qrCodeErc20Label: "ERC20 QR कोड",
+    editUserTitle: "उपयोगकर्ता संपादित करें",
+    userNameLabel: "उपयोगकर्ता का नाम",
+    customApyLabel: "कस्टम APY (%)",
+    setAccountRole: "खाता भूमिका",
+    saveChangesBtn: "परिवर्तन सहेजें",
+    fixedRate: "निश्चित",
+    sysDefault: "सिस्टम डिफॉल्ट",
+    interestEarningLabel: "ब्याज की आय",
+    initialDepositLabel: "प्रारंभिक जमा",
+    inviteLineMsg: "【KIZUNA PREP LAB】अगली पीढ़ी के USDT लाभ के साथ संपत्ति की रक्षा करें। मेरे इनवाइट कोड का उपयोग करें!\nइनवाइट कोड: {code}\nयहाँ जुड़ें: {url}"
+  },
+  vn: {
+    'adminAuthTitle': "Xác thực quản trị viên",
+    'adminAuthDesc': "Vui lòng nhập mã bảo mật 6 chữ số để truy cập Bảng quản trị.",
+    'adminAuthPlaceholder': "Nhập mã",
+    'adminAuthError': "Mã không chính xác. Vui lòng thử lại.",
+    'adminCodeSetting': "Mã truy cập quản trị",
+    'adminCodeNote': "* Mã xác thực phụ cho Bảng quản trị (nên dùng 6 chữ số).",
+    'verify': "Xác thực"
+  },
+  th: {
+    'adminAuthTitle': "การยืนยันตัวตนผู้ดูแลระบบ",
+    'adminAuthDesc': "กรุณาใส่รหัสความปลอดภัย 6 หลักเพื่อเข้าสู่แผงควบคุมผู้ดูแลระบบ",
+    'adminAuthPlaceholder': "ใส่รหัส",
+    'adminAuthError': "รหัสไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง",
+    'adminCodeSetting': "รหัสการเข้าถึงผู้ดูแลระบบ",
+    'adminCodeNote': "* รหัสยืนยันตัวตนสำรองสำหรับแผงควบคุม (แนะนำ 6 หลัก)",
+    'verify': "ยืนยัน"
+  },
+  id: {
+    'adminAuthTitle': "Verifikasi Admin",
+    'adminAuthDesc': "Silakan masukkan 6 digit kode keamanan untuk mengakses Panel Admin.",
+    'adminAuthPlaceholder': "Masukkan Kode",
+    'adminAuthError': "Kode salah. Silakan coba lagi.",
+    'adminCodeSetting': "Kode Akses Admin",
+    'adminCodeNote': "* Kode verifikasi sekunder untuk Panel Admin (disarankan 6 digit).",
+    'verify': "Verifikasi"
+  },
+  es: {
+    'adminAuthTitle': "Verificación de administrador",
+    'adminAuthDesc': "Ingrese el código de seguridad de 6 dígitos para acceder al Panel de administración.",
+    'adminAuthPlaceholder': "Ingrese el código",
+    'adminAuthError': "Código incorrecto. Inténtelo de nuevo.",
+    'adminCodeSetting': "Código de acceso de administrador",
+    'adminCodeNote': "* Código de verificación secundaria para el Panel de administración (se recomiendan 6 dígitos).",
+    'verify': "Verificar"
+  },
+  pt: {
+    'adminAuthTitle': "Verificação de administrador",
+    'adminAuthDesc': "Insira o código de segurança de 6 dígitos para acessar o Painel de administração.",
+    'adminAuthPlaceholder': "Insira o código",
+    'adminAuthError': "Código incorreto. Tente novamente.",
+    'adminCodeSetting': "Código de acesso de administrador",
+    'adminCodeNote': "* Código de verificação secundária para o Painel de administrador (recomenda-se 6 dígitos).",
+    'verify': "Verificar"
+  },
+  ar: {
+    'adminAuthTitle': "تحقق المسؤول",
+    'adminAuthDesc': "يرجى إدخال رمز الأمان المكون من 6 أرقام للوصول إلى لوحة المسؤول.",
+    'adminAuthPlaceholder': "أدخل الرمز",
+    'adminAuthError': "رمز غير صحيح. يرجى المحاولة مرة أخرى.",
+    'adminCodeSetting': "رمز وصول المسؤول",
+    'adminCodeNote': "* رمز تحقق ثانوي للوحة المسؤول (يفضل 6 أرقام).",
+    'verify': "تحقق"
   }
 };
 
-// Fill in other languages with English placeholders for brevity in this step
+// Fill in other languages with English placeholders for missing keys
 LANGUAGES.forEach(lang => {
   if (!TRANSLATIONS[lang.code]) {
     TRANSLATIONS[lang.code] = TRANSLATIONS.en;
+  } else {
+    // Fill in missing keys from English fallback
+    Object.keys(TRANSLATIONS.en).forEach(key => {
+      if (!TRANSLATIONS[lang.code][key]) {
+        TRANSLATIONS[lang.code][key] = TRANSLATIONS.en[key];
+      }
+    });
   }
 });
 
@@ -1255,6 +1594,16 @@ const AdminPanelView = ({
   onBack: () => void, 
   currentLang: string 
 }) => {
+  const t = (key: string, params?: Record<string, any>) => {
+    let text = TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS.en[key] || key;
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        text = text.replace(`{${k}}`, String(v));
+      });
+    }
+    return text;
+  };
+
   const [activeSubView, setActiveSubView] = useState<'dashboard' | 'products' | 'finance' | 'positions' | 'members' | 'info' | 'settings'>('dashboard');
   const [users, setUsers] = useState<any[]>([]);
   const [pendingTransactions, setPendingTransactions] = useState<any[]>([]);
@@ -1264,7 +1613,8 @@ const AdminPanelView = ({
     depositWalletTrc20: "",
     qrCodeTrc20: "",
     depositWalletErc20: "",
-    qrCodeErc20: ""
+    qrCodeErc20: "",
+    adminSecretCode: "888888"
   });
   const [isLoading, setIsLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<any>(null);
@@ -1348,7 +1698,7 @@ const AdminPanelView = ({
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
-      alert("图片不能超过 2MB");
+      alert(currentLang === 'hi' ? "छवि 2MB से अधिक नहीं होनी चाहिए" : currentLang === 'jp' ? "画像は2MBを超えてはいけません" : "Image size exceeds 2MB");
       return;
     }
 
@@ -1368,7 +1718,7 @@ const AdminPanelView = ({
         ...systemSettings,
         updatedAt: serverTimestamp()
       });
-      alert("系统设置保存成功");
+      alert(currentLang === 'hi' ? "सिस्टम सेटिंग्स सफलतापूर्वक सहेजी गईं" : currentLang === 'jp' ? "システム設定が保存されました" : "System settings saved successfully");
     } catch (err) {
       console.error("Save Settings Error:", err);
     }
@@ -1386,13 +1736,13 @@ const AdminPanelView = ({
   }
 
   const NAV_ITEMS = [
-    { id: 'dashboard', label: '控制台', icon: LayoutDashboard, badge: 0 },
-    { id: 'products', label: '产品管理', icon: TrendingUp, badge: 0 },
-    { id: 'finance', label: '财务管理', icon: Wallet, badge: pendingTransactions.length },
-    { id: 'positions', label: '持仓管理', icon: ClipboardList, badge: 0 },
-    { id: 'members', label: '会员管理', icon: Users, badge: 0 },
-    { id: 'info', label: '资讯管理', icon: Newspaper, badge: 0 },
-    { id: 'settings', label: '系统设置', icon: Settings, badge: 0 },
+    { id: 'dashboard', label: t('adminSummary'), icon: LayoutDashboard, badge: 0 },
+    { id: 'products', label: t('productsLabel', { fallback: 'Products' }), icon: TrendingUp, badge: 0 },
+    { id: 'finance', label: t('audit'), icon: Wallet, badge: pendingTransactions.length },
+    { id: 'positions', label: t('positionsLabel', { fallback: 'Positions' }), icon: ClipboardList, badge: 1 },
+    { id: 'members', label: t('memberManagement'), icon: Users, badge: 0 },
+    { id: 'info', label: t('infoLabel', { fallback: 'News' }), icon: Newspaper, badge: 0 },
+    { id: 'settings', label: t('systemSettings'), icon: Settings, badge: 0 },
   ];
 
   return (
@@ -1401,7 +1751,7 @@ const AdminPanelView = ({
       <aside className="w-64 bg-white border-r border-gray-100 flex flex-col pt-8">
         <div className="px-6 mb-10 flex items-center gap-2 cursor-pointer" onClick={onBack}>
           <div className="w-8 h-8 bg-black rounded flex items-center justify-center text-white font-black italic">K</div>
-          <span className="font-black italic tracking-tighter text-lg">KIZUNA ADMIN</span>
+          <span className="font-black italic tracking-tighter text-lg">{t('adminPanelTitle')}</span>
         </div>
 
         <nav className="flex-1 px-4 space-y-1">
@@ -1442,7 +1792,7 @@ const AdminPanelView = ({
             className="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all rounded-lg"
           >
             <LogOut size={18} />
-            <span className="font-bold text-sm">退出后台</span>
+            <span className="font-bold text-sm">{t('exitAdminBtn')}</span>
           </button>
         </div>
       </aside>
@@ -1454,11 +1804,11 @@ const AdminPanelView = ({
             <h1 className="text-2xl font-black text-gray-900 mb-1">
               {NAV_ITEMS.find(n => n.id === activeSubView)?.label}
             </h1>
-            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest leading-none">内容管理系统 / {NAV_ITEMS.find(n => n.id === activeSubView)?.label}</p>
+            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest leading-none">{t('contentMgmtSystem')} / {NAV_ITEMS.find(n => n.id === activeSubView)?.label}</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">超级管理员</div>
+              <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('superAdmin')}</div>
               <div className="text-xs font-black text-editorial-navy">oopqwe001@gmail.com</div>
             </div>
             <div className="w-10 h-10 rounded-full bg-editorial-navy text-white flex items-center justify-center font-black shadow-lg shadow-editorial-navy/20">A</div>
@@ -1470,10 +1820,10 @@ const AdminPanelView = ({
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {[
-                { label: '总用户数', value: users.length, icon: Users, color: 'text-blue-600' },
-                { label: '总充值额 (USDT)', value: totalPrincipal.toLocaleString(), icon: Wallet, color: 'text-green-600' },
-                { label: '总收益发放 (USDT)', value: totalEarnings.toLocaleString(), icon: TrendingUp, color: 'text-orange-600' },
-                { label: '待处理审核', value: pendingTransactions.length, icon: Clock, color: 'text-red-600' },
+                { label: t('totalUsersAdmin'), value: users.length, icon: Users, color: 'text-blue-600' },
+                { label: t('totalDepositsAdmin'), value: totalPrincipal.toLocaleString(), icon: Wallet, color: 'text-green-600' },
+                { label: t('totalEarningsDistAdmin'), value: totalEarnings.toLocaleString(), icon: TrendingUp, color: 'text-orange-600' },
+                { label: t('pendingAuditsAdmin'), value: pendingTransactions.length, icon: Clock, color: 'text-red-600' },
               ].map((stat, i) => (
                 <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col gap-4">
                   <div className={`w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center ${stat.color}`}>
@@ -1489,7 +1839,7 @@ const AdminPanelView = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
-                <h3 className="text-sm font-black uppercase tracking-widest mb-6">最近活跃用户</h3>
+                <h3 className="text-sm font-black uppercase tracking-widest mb-6">{t('recentActiveUsers')}</h3>
                 <div className="space-y-4">
                   {users.slice(0, 5).map(u => (
                     <div key={u.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors">
@@ -1524,12 +1874,12 @@ const AdminPanelView = ({
           <div className="space-y-6">
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
               <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                <h3 className="text-sm font-black uppercase tracking-widest">待处理审核 ({pendingTransactions.length})</h3>
+                <h3 className="text-sm font-black uppercase tracking-widest">{t('pendingReview')} ({pendingTransactions.length})</h3>
               </div>
               <div className="divide-y divide-gray-50">
                 {pendingTransactions.length === 0 ? (
                   <div className="text-center py-20 text-gray-400 text-xs font-bold uppercase tracking-widest">
-                    暂无待处理请求
+                    {t('noPendingRequests')}
                   </div>
                 ) : (
                   pendingTransactions.map(tx => (
@@ -1541,7 +1891,7 @@ const AdminPanelView = ({
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${tx.type === 'deposit' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
-                              {tx.type === 'deposit' ? '充值' : '提现'}
+                              {tx.type === 'deposit' ? t('depositAction') : t('withdrawAction')}
                             </span>
                             <span className="text-[10px] font-black text-gray-400">{tx.network}</span>
                           </div>
@@ -1554,13 +1904,13 @@ const AdminPanelView = ({
                           onClick={() => handleUpdateTransaction(tx.userId, tx.id, 'completed')}
                           className="px-6 py-3 bg-green-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-green-700 active:scale-95 transition-all shadow-lg shadow-green-200"
                         >
-                          批准
+                          {t('approveBtn')}
                         </button>
                         <button 
                           onClick={() => handleUpdateTransaction(tx.userId, tx.id, 'failed')}
                           className="px-6 py-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200"
                         >
-                          拒绝
+                          {t('rejectBtn')}
                         </button>
                       </div>
                     </div>
@@ -1575,11 +1925,11 @@ const AdminPanelView = ({
         {(activeSubView === 'members' || activeSubView === 'positions') && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-              <h3 className="text-sm font-black uppercase tracking-widest">用户列表 ({users.length})</h3>
+              <h3 className="text-sm font-black uppercase tracking-widest">{t('userListTitle')} ({users.length})</h3>
               <div className="flex gap-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                  <input type="text" placeholder="搜索用户..." className="bg-white border rounded-xl pl-9 pr-4 py-2 text-xs focus:ring-1 focus:ring-[#e60012] outline-none" />
+                  <input type="text" placeholder={t('searchUserPlaceholder')} className="bg-white border rounded-xl pl-9 pr-4 py-2 text-xs focus:ring-1 focus:ring-editorial-navy outline-none" />
                 </div>
               </div>
             </div>
@@ -1587,12 +1937,12 @@ const AdminPanelView = ({
               <table className="w-full text-left">
                 <thead className="bg-gray-50/50 text-[10px] font-black uppercase tracking-widest text-gray-400">
                   <tr>
-                    <th className="px-6 py-4">用户信息</th>
-                    <th className="px-6 py-4">本金 (USDT)</th>
-                    <th className="px-6 py-4">收益 (USDT)</th>
-                    <th className="px-6 py-4">利率 (APY)</th>
-                    <th className="px-6 py-4">角色</th>
-                    <th className="px-6 py-4 text-right">操作</th>
+                    <th className="px-6 py-4">{t('userInfoHeader')}</th>
+                    <th className="px-6 py-4">{t('principalHeader')}</th>
+                    <th className="px-6 py-4">{t('earningsHeader')}</th>
+                    <th className="px-6 py-4">{t('apyHeader')}</th>
+                    <th className="px-6 py-4">{t('roleHeader')}</th>
+                    <th className="px-6 py-4 text-right">{t('actionHeader')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -1615,7 +1965,7 @@ const AdminPanelView = ({
                       </td>
                       <td className="px-6 py-4 font-black">
                          <span className={`text-[10px] px-2 py-0.5 rounded-full ${user.customApy ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-gray-50 text-gray-400'}`}>
-                           {user.customApy ? `${user.customApy}% (定)` : '系统默认'}
+                           {user.customApy ? `${user.customApy}% (${t('fixedRate')})` : t('sysDefault')}
                          </span>
                       </td>
                       <td className="px-6 py-4">
@@ -1643,20 +1993,20 @@ const AdminPanelView = ({
         {activeSubView === 'settings' && (
           <div className="max-w-2xl">
             <div className="bg-white p-10 rounded-2xl border border-gray-100 shadow-sm space-y-8">
-              <h2 className="text-sm font-black uppercase tracking-widest text-gray-900 border-b pb-6">系统参数配置</h2>
+              <h2 className="text-sm font-black uppercase tracking-widest text-gray-900 border-b pb-6">{t('sysConfigTitle')}</h2>
               
               <div className="space-y-6">
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">客服链接 (Telegram/Line)</label>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">{t('customerServiceUrlLabel')}</label>
                   <input 
                     type="text"
                     value={systemSettings.customerServiceUrl}
                     onChange={e => setSystemSettings({...systemSettings, customerServiceUrl: e.target.value})}
-                    className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-[11px] font-bold focus:outline-none focus:border-[#e60012] transition-colors"
+                    className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-[11px] font-bold focus:outline-none focus:border-editorial-navy transition-colors"
                     placeholder="https://t.me/your_support"
                   />
                   <div className="mt-4">
-                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">客服 QR 二维码</label>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">{t('customerServiceQrLabel')}</label>
                     <div className="flex items-center gap-4">
                       {systemSettings.customerServiceQr && (
                         <img src={systemSettings.customerServiceQr} alt="Support QR" className="w-16 h-16 rounded-xl object-cover border" />
@@ -1671,19 +2021,19 @@ const AdminPanelView = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">平台收款地址 (TRC20)</label>
+                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">{t('platformWalletTrc20Label')}</label>
                       <input 
                         type="text"
                         value={systemSettings.depositWalletTrc20}
                         onChange={e => setSystemSettings({...systemSettings, depositWalletTrc20: e.target.value})}
-                        className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-[11px] font-mono focus:outline-none focus:border-[#e60012]"
+                        className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-[11px] font-mono focus:outline-none focus:border-editorial-navy"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">TRC20 收款二维码</label>
+                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">{t('qrCodeTrc20Label')}</label>
                       <div className="flex items-center gap-4">
                         {systemSettings.qrCodeTrc20 && (
                           <img src={systemSettings.qrCodeTrc20} alt="TRC20 QR" className="w-16 h-16 rounded-xl object-cover border" />
@@ -1699,16 +2049,16 @@ const AdminPanelView = ({
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">平台收款地址 (ERC20)</label>
+                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">{t('platformWalletErc20Label')}</label>
                       <input 
                         type="text"
                         value={systemSettings.depositWalletErc20}
                         onChange={e => setSystemSettings({...systemSettings, depositWalletErc20: e.target.value})}
-                        className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-[11px] font-mono focus:outline-none focus:border-[#e60012]"
+                        className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-[11px] font-mono focus:outline-none focus:border-editorial-navy"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">ERC20 收款二维码</label>
+                      <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">{t('qrCodeErc20Label')}</label>
                       <div className="flex items-center gap-4">
                         {systemSettings.qrCodeErc20 && (
                           <img src={systemSettings.qrCodeErc20} alt="ERC20 QR" className="w-16 h-16 rounded-xl object-cover border" />
@@ -1723,14 +2073,30 @@ const AdminPanelView = ({
                     </div>
                   </div>
                 </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">
+                    {TRANSLATIONS[currentLang]?.adminCodeSetting || "Admin Access Code"}
+                  </label>
+                  <input 
+                    type="text"
+                    value={systemSettings.adminSecretCode}
+                    onChange={e => setSystemSettings({...systemSettings, adminSecretCode: e.target.value})}
+                    className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-[11px] font-mono focus:outline-none focus:border-editorial-navy transition-colors"
+                    placeholder="888888"
+                  />
+                  <p className="text-[9px] text-gray-400 font-bold mt-2 italic">
+                    {TRANSLATIONS[currentLang]?.adminCodeNote || "* Use this code to verify admin entry."}
+                  </p>
+                </div>
               </div>
 
               <div className="pt-6">
                 <button 
                   onClick={handleSaveSettings}
-                  className="w-full bg-[#e60012] text-white font-black py-4 rounded-xl text-[10px] uppercase tracking-[0.3em] shadow-[0_10px_20px_rgba(230,0,18,0.2)] active:scale-95 transition-all"
+                  className="w-full bg-editorial-navy text-white font-black py-4 rounded-xl text-[10px] uppercase tracking-[0.3em] shadow-[0_10px_20px_rgba(30,41,59,0.15)] active:scale-95 transition-all"
                 >
-                  保存所有更改
+                  {t('saveSettings')}
                 </button>
               </div>
             </div>
@@ -1857,6 +2223,9 @@ const DashboardView = ({
   const [showSupportQrModal, setShowSupportQrModal] = useState(false);
   const [pendingDepositAmount, setPendingDepositAmount] = useState<number | null>(null);
   const [depositInputAmount, setDepositInputAmount] = useState<string>("");
+  const [showAdminAuthModal, setShowAdminAuthModal] = useState(false);
+  const [adminCodeInput, setAdminCodeInput] = useState("");
+  const [adminCodeError, setAdminCodeError] = useState(false);
   
   // Referral States
   const [referrals, setReferrals] = useState<any[]>([]);
@@ -1869,7 +2238,8 @@ const DashboardView = ({
     depositWalletTrc20: "TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     qrCodeTrc20: "",
     depositWalletErc20: "0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    qrCodeErc20: ""
+    qrCodeErc20: "",
+    adminSecretCode: "888888"
   });
 
   useEffect(() => {
@@ -1901,7 +2271,7 @@ const DashboardView = ({
   };
 
   const handleLineInvite = () => {
-    const message = `【KIZUNA PREP LAB】次世代USDT運用で資産を守る。今なら招待コード入力で利率アップ！\n招待コード：${userProfile?.referralCode}\n参加はこちら：${window.location.origin}`;
+    const message = t('inviteLineMsg', { code: userProfile?.referralCode, url: window.location.origin });
     window.open(`https://line.me/R/msg/text/?${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -1960,14 +2330,14 @@ const DashboardView = ({
       });
     }
     return records;
-  }, [principalBalance, liveApy, isNewUser]);
+  }, [principalBalance, liveApy, isNewUser, currentLang]);
 
   const capitalHistory = useMemo(() => {
     if (isNewUser) return [];
     return [
       { date: "2026/04/17", amount: `+$${principalBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, type: t('initialDeposit'), color: "text-editorial-navy" }
     ];
-  }, [principalBalance, isNewUser]);
+  }, [principalBalance, isNewUser, currentLang]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -2469,7 +2839,11 @@ const DashboardView = ({
             <button 
               key={idx} 
               onClick={() => {
-                if (item.id === 'admin') onAdminPanel();
+                if (item.id === 'admin') {
+                  setShowAdminAuthModal(true);
+                  setAdminCodeInput("");
+                  setAdminCodeError(false);
+                }
                 else if (item.id === 'security' || item.id === 'wallet' || item.id === 'language') setActiveSettingsView(item.id as any);
               }}
               className="w-full flex items-center justify-between p-5 border-b border-gray-100 last:border-0 active:bg-gray-50 transition-colors"
@@ -3258,6 +3632,95 @@ const DashboardView = ({
           </div>
         )}
       </AnimatePresence>
+
+      {/* Admin PIN Authentication Modal */}
+      <AnimatePresence>
+        {showAdminAuthModal && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 text-editorial-navy">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowAdminAuthModal(false)}
+              className="absolute inset-0 bg-editorial-navy/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative bg-white w-full max-w-sm rounded p-8 shadow-2xl border-t-4 border-editorial-gold z-[301]"
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-full bg-editorial-gold/5 flex items-center justify-center text-editorial-gold mb-6 border border-editorial-gold/20 shadow-inner">
+                  <ShieldCheck size={32} />
+                </div>
+                <h3 className="text-xl font-black italic tracking-tight uppercase mb-2 leading-tight">
+                  {t('adminAuthTitle')}
+                </h3>
+                <p className="text-[10px] text-editorial-gray font-bold leading-relaxed mb-8">
+                  {t('adminAuthDesc')}
+                </p>
+                
+                <div className="w-full space-y-4">
+                  <div className="relative group">
+                    <input 
+                      type="password"
+                      maxLength={12}
+                      value={adminCodeInput}
+                      autoFocus
+                      inputMode="numeric"
+                      onChange={(e) => {
+                        setAdminCodeInput(e.target.value);
+                        setAdminCodeError(false);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          const currentSecret = sysSettings.adminSecretCode || "888888";
+                          if (adminCodeInput === currentSecret) {
+                            setShowAdminAuthModal(false);
+                            onAdminPanel();
+                          } else {
+                            setAdminCodeError(true);
+                          }
+                        }
+                      }}
+                      placeholder={t('adminAuthPlaceholder')}
+                      className={`w-full bg-gray-50 border-2 ${adminCodeError ? 'border-red-500' : 'border-gray-100'} p-4 rounded text-center text-lg font-black tracking-[0.5em] focus:outline-none focus:border-editorial-gold transition-all`}
+                    />
+                    {adminCodeError && (
+                      <p className="text-[9px] text-red-500 font-bold mt-2 uppercase tracking-tighter animate-bounce">
+                        {t('adminAuthError')}
+                      </p>
+                    )}
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      const currentSecret = sysSettings.adminSecretCode || "888888";
+                      if (adminCodeInput === currentSecret) {
+                        setShowAdminAuthModal(false);
+                        onAdminPanel();
+                      } else {
+                        setAdminCodeError(true);
+                      }
+                    }}
+                    className="w-full bg-editorial-navy text-white font-black py-4 rounded text-xs uppercase tracking-[0.2em] shadow-xl shadow-editorial-navy/10 active:scale-95 transition-transform"
+                  >
+                    {t('verify')}
+                  </button>
+                  
+                  <button 
+                    onClick={() => setShowAdminAuthModal(false)}
+                    className="w-full text-editorial-gray font-black py-2 text-[10px] uppercase tracking-widest hover:text-editorial-navy transition-colors"
+                  >
+                    {t('cancel')}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -3613,10 +4076,10 @@ export default function App() {
             {/* Header - Optimized Height */}
             <header className="h-[50px] md:h-[60px] bg-white border-b-2 border-editorial-navy px-4 md:px-10 flex items-center justify-between sticky top-0 z-50">
               <div className="flex items-center gap-2">
-                <div className="text-lg md:text-xl font-black tracking-tighter leading-none">
-                  KIZUNA<span className="hidden md:inline"> USD DEFENSE</span>
+                <div className="text-lg md:text-xl font-black tracking-tighter leading-none uppercase">
+                  KIZUNA<span className="hidden md:inline"> {t('usdDefense')}</span>
                   <span className="ml-1.5 text-[9px] bg-editorial-navy text-white px-1.5 py-0.5 rounded-sm align-middle">
-                    PREP LAB
+                    {t('prepLab')}
                   </span>
                 </div>
               </div>
@@ -3649,7 +4112,7 @@ export default function App() {
               <section className="col-span-1 md:col-span-4 editorial-hero editorial-section !p-2 md:!p-4 !pt-2">
                 <div className="mb-1 md:mb-2">
                   <span className="block text-[7px] md:text-[8px] font-bold text-editorial-gold mb-0.5 uppercase tracking-widest">
-                    Digital Asset Defense
+                    {t('assetDefenseLabel')}
                   </span>
                   <h1 className="text-base md:text-2xl font-black italic leading-[1.1] md:leading-[1.1] tracking-tight mb-1 md:mb-2 whitespace-pre-line">
                     {t('heroTitle')}
@@ -3669,7 +4132,7 @@ export default function App() {
                           transition={{ repeat: Infinity, duration: 1.5 }}
                           className="w-0.5 h-0.5 bg-green-400 rounded-full"
                         />
-                        <span className="text-[8px] md:text-[10px] font-bold text-green-400">LIVE: {liveApy}%</span>
+                        <span className="text-[8px] md:text-[10px] font-bold text-green-400 uppercase">{t('liveIndicator')}: {liveApy}%</span>
                       </div>
                     </div>
                     <div className="h-0.5 md:h-1.5 w-full bg-white/10 rounded-full overflow-hidden my-0.5">
@@ -3877,12 +4340,12 @@ export default function App() {
               <div className="w-5 h-5 bg-editorial-navy rounded-sm flex items-center justify-center text-white text-[9px] font-black italic">
                 K
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Kizuna Digital Asset Defense Lab</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em]">{t('kizunaLogoFull')}</span>
             </div>
             <span className="text-[8px] text-gray-400 font-mono tracking-widest leading-none">VER 0.8.2 ALPHA EDITION</span>
           </div>
-          <p className="text-[9px] text-editorial-gray font-bold tracking-widest opacity-60 leading-none">
-            &copy; {new Date().getFullYear()} KIZUNA LAB. ALL RIGHTS RESERVED.
+          <p className="text-[9px] text-editorial-gray font-bold tracking-widest opacity-60 leading-none uppercase">
+            &copy; {new Date().getFullYear()} KIZUNA LAB. {t('allRightsReserved')}
           </p>
         </div>
       </footer>
