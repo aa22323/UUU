@@ -568,7 +568,10 @@ const TRANSLATIONS: Record<string, any> = {
     saveChangesBtn: "Save Changes",
     fixedRate: "Fixed",
     sysDefault: "System Default",
-    interestEarningLabel: "Interest Earning",
+    withdrawHistory: "Withdrawal History",
+    statusPending: "Pending",
+    statusCompleted: "Completed",
+    statusFailed: "Rejected",
     initialDepositLabel: "Initial Deposit",
     inviteLineMsg: "【KIZUNA PREP LAB】Protect assets with next-gen USDT yield. Use my invite code for a yield boost!\nInvite Code: {code}\nJoin here: {url}"
   },
@@ -851,7 +854,10 @@ const TRANSLATIONS: Record<string, any> = {
     saveChangesBtn: "保存修改",
     fixedRate: "固定",
     sysDefault: "系统默认",
-    interestEarningLabel: "利息收益",
+    withdrawHistory: "提现历史",
+    statusPending: "处理中",
+    statusCompleted: "已完成",
+    statusFailed: "已驳回",
     initialDepositLabel: "首次充值",
     inviteLineMsg: "【KIZUNA PREP LAB】通过下一代 USDT 收益保护资产。使用我的邀请码即可提升收益率！\n邀请码：{code}\n点击加入：{url}"
   },
@@ -1607,6 +1613,8 @@ const AdminPanelView = ({
   const [activeSubView, setActiveSubView] = useState<'dashboard' | 'products' | 'finance' | 'positions' | 'members' | 'info' | 'settings'>('dashboard');
   const [users, setUsers] = useState<any[]>([]);
   const [pendingTransactions, setPendingTransactions] = useState<any[]>([]);
+  const [financeTab, setFinanceTab] = useState<'pending' | 'history'>('pending');
+  const [allTransactions, setAllTransactions] = useState<any[]>([]);
   const [systemSettings, setSystemSettings] = useState<any>({
     customerServiceUrl: "",
     customerServiceQr: "",
@@ -1624,7 +1632,11 @@ const AdminPanelView = ({
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const usersSnap = await getDocs(collection(db, 'users'));
+        const [usersSnap, settingsSnap] = await Promise.all([
+          getDocs(collection(db, 'users')),
+          getDoc(doc(db, 'settings', 'system'))
+        ]);
+
         const userList = await Promise.all(usersSnap.docs.map(async (uDoc) => {
           const userData = uDoc.data();
           const portfolioSnap = await getDoc(doc(db, 'users', uDoc.id, 'portfolio', 'main'));
@@ -1638,25 +1650,87 @@ const AdminPanelView = ({
         }));
         setUsers(userList);
 
-        const txQuery = query(collectionGroup(db, 'transactions'), where('status', '==', 'pending'), orderBy('timestamp', 'desc'));
-        const txSnap = await getDocs(txQuery);
-        setPendingTransactions(txSnap.docs.map(doc => ({
-          id: doc.id,
-          userId: doc.ref.parent.parent?.id,
-          ...doc.data()
-        })));
-
-        const settingsSnap = await getDoc(doc(db, 'settings', 'system'));
         if (settingsSnap.exists()) {
-          setSystemSettings(settingsSnap.data());
+          const data = settingsSnap.data();
+          setSystemSettings((prev: any) => ({ ...prev, ...data }));
         }
       } catch (err) {
-        console.error("Admin Load Error:", err);
+        console.error("Admin Initial Load Error:", err);
       }
       setIsLoading(false);
     };
 
     loadData();
+  }, []);
+
+  // Refresh dynamic data like transactions on tab switch
+  useEffect(() => {
+    let unsubs: (() => void)[] = [];
+
+    const setupSync = async () => {
+      try {
+        // Fetch users once to get the list of IDs
+        const usersSnap = await getDocs(collection(db, 'users'));
+        const userList = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // Real-time listener for pending transactions across all users
+        // Since collectionGroup often requires manual index setup, 
+        // we'll listen to each user's transactions if the list is small,
+        // or attempt a simpler collectionGroup.
+        
+        // Let's listen to ALL transactions and filter them
+        const allQ = query(collectionGroup(db, 'transactions'));
+        const unsubAll = onSnapshot(allQ, (snapshot) => {
+          const txs = snapshot.docs.map(doc => {
+            const userId = doc.ref.parent.parent?.id || "";
+            const userData = userList.find(u => u.id === userId) || {};
+            return {
+              id: doc.id,
+              userId: userId,
+              userEmail: (userData as any).email || (userData as any).uid || "Unknown",
+              userName: (userData as any).name || "User",
+              ...doc.data()
+            } as any;
+          }).sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+          setAllTransactions(txs);
+          setPendingTransactions(txs.filter(tx => tx.status === 'pending'));
+        }, (err) => {
+          console.error("Admin All Transactions Error:", err);
+          // Fallback logic if collectionGroup fails
+          if (err.message.includes('index')) {
+            usersSnap.docs.forEach(uDoc => {
+              const uQ = query(collection(db, 'users', uDoc.id, 'transactions'));
+              const uUnsub = onSnapshot(uQ, (uSnap) => {
+                setAllTransactions(prev => {
+                  const filtered = prev.filter(tx => tx.userId !== uDoc.id);
+                  const newTxs = uSnap.docs.map(d => ({
+                    id: d.id,
+                    userId: uDoc.id,
+                    userEmail: uDoc.data().email || uDoc.id,
+                    userName: uDoc.data().name || "User",
+                    ...d.data()
+                  })) as any[];
+                  const updated = [...filtered, ...newTxs].sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+                  setPendingTransactions(updated.filter(tx => tx.status === 'pending'));
+                  return updated;
+                });
+              });
+              unsubs.push(uUnsub);
+            });
+          }
+        });
+        unsubs.push(unsubAll);
+      } catch (err) {
+        console.error("Admin setupSync Error:", err);
+      }
+    };
+
+    if (activeSubView === 'finance' || activeSubView === 'dashboard') {
+      setupSync();
+    }
+
+    return () => unsubs.forEach(u => u());
   }, [activeSubView]);
 
   const handleUpdateTransaction = async (userId: string, txId: string, status: 'completed' | 'failed') => {
@@ -1673,23 +1747,25 @@ const AdminPanelView = ({
     if (!editingUser) return;
     try {
       const userRef = doc(db, 'users', editingUser.id);
-      await updateDoc(userRef, {
+      await setDoc(userRef, {
         name: editingUser.name,
         customApy: editingUser.customApy ? parseFloat(editingUser.customApy) : null,
         role: editingUser.role
-      });
+      }, { merge: true });
       
       const portfolioRef = doc(db, 'users', editingUser.id, 'portfolio', 'main');
-      await updateDoc(portfolioRef, {
+      await setDoc(portfolioRef, {
         principalBalance: parseFloat(editingUser.principalBalance) || 0,
         totalEarnings: parseFloat(editingUser.totalEarnings) || 0,
         lastUpdated: serverTimestamp()
-      });
+      }, { merge: true });
 
       setUsers(prev => prev.map(u => u.id === editingUser.id ? editingUser : u));
+      alert(currentLang === 'hi' ? "उपयोगकर्ता विवरण सफलतापूर्वक सहेजे गए" : currentLang === 'jp' ? "ユーザー設定が保存されました" : "User settings saved successfully");
       setEditingUser(null);
     } catch (err) {
       console.error("Save User Error:", err);
+      alert("Error saving user: " + (err instanceof Error ? err.message : "Unknown error"));
     }
   };
 
@@ -1697,8 +1773,9 @@ const AdminPanelView = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      alert(currentLang === 'hi' ? "छवि 2MB से अधिक नहीं होनी चाहिए" : currentLang === 'jp' ? "画像は2MBを超えてはいけません" : "Image size exceeds 2MB");
+    // QR codes should be small. 500KB is plenty and avoids Firestore 1MB document limit.
+    if (file.size > 500 * 1024) {
+      alert(currentLang === 'hi' ? "छवि 500KB से अधिक नहीं होनी चाहिए" : currentLang === 'jp' ? "画像は500KBを超えてはいけません" : "Image size exceeds 500KB. Please use a smaller QR code image.");
       return;
     }
 
@@ -1718,9 +1795,10 @@ const AdminPanelView = ({
         ...systemSettings,
         updatedAt: serverTimestamp()
       });
-      alert(currentLang === 'hi' ? "सिस्टम सेटिंग्स सफलतापूर्वक सहेजी गईं" : currentLang === 'jp' ? "システム設定が保存されました" : "System settings saved successfully");
+      alert(currentLang === 'hi' ? "सिस्टम सेटिंग्स सफलतापूर्वक सहेजी गईं" : currentLang === 'jp' ? "システム設定が保存されました" : currentLang === 'cn' ? "系统设置保存成功" : "System settings saved successfully");
     } catch (err) {
       console.error("Save Settings Error:", err);
+      alert("Error saving settings: " + (err instanceof Error ? err.message : "Unknown error"));
     }
   };
 
@@ -1872,17 +1950,33 @@ const AdminPanelView = ({
         {/* Finance View (Audit) */}
         {activeSubView === 'finance' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                <h3 className="text-sm font-black uppercase tracking-widest">{t('pendingReview')} ({pendingTransactions.length})</h3>
-              </div>
+            <div className="flex gap-4 mb-4">
+              <button 
+                onClick={() => setFinanceTab('pending')}
+                className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                  financeTab === 'pending' ? 'bg-editorial-navy text-white shadow-lg shadow-gray-200' : 'bg-white text-gray-400 border border-gray-100 hover:bg-gray-50'
+                }`}
+              >
+                {t('pendingReview')} ({pendingTransactions.length})
+              </button>
+              <button 
+                onClick={() => setFinanceTab('history')}
+                className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                  financeTab === 'history' ? 'bg-editorial-navy text-white shadow-lg shadow-gray-200' : 'bg-white text-gray-400 border border-gray-100 hover:bg-gray-50'
+                }`}
+              >
+                {t('withdrawHistory')} / {t('historyTitle')}
+              </button>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden text-[#5d6a85]">
               <div className="divide-y divide-gray-50">
-                {pendingTransactions.length === 0 ? (
+                {(financeTab === 'pending' ? pendingTransactions : allTransactions).length === 0 ? (
                   <div className="text-center py-20 text-gray-400 text-xs font-bold uppercase tracking-widest">
                     {t('noPendingRequests')}
                   </div>
                 ) : (
-                  pendingTransactions.map(tx => (
+                  (financeTab === 'pending' ? pendingTransactions : allTransactions).map(tx => (
                     <div key={tx.id} className="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
                       <div className="flex items-center gap-6">
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${tx.type === 'deposit' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
@@ -1893,26 +1987,66 @@ const AdminPanelView = ({
                             <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${tx.type === 'deposit' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
                               {tx.type === 'deposit' ? t('depositAction') : t('withdrawAction')}
                             </span>
+                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
+                              tx.status === 'completed' ? 'bg-green-100 text-green-700' : 
+                              tx.status === 'failed' ? 'bg-red-100 text-red-700' : 
+                              'bg-yellow-100 text-yellow-700'
+                            }`}>
+                              {t(`status${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}`)}
+                            </span>
                             <span className="text-[10px] font-black text-gray-400">{tx.network}</span>
                           </div>
                           <div className="text-xl font-black italic tracking-tight text-gray-900">${tx.amount.toLocaleString()}</div>
-                          <div className="text-[10px] font-mono text-gray-400 truncate max-w-[200px] mt-1">{tx.address}</div>
+                          
+                          <div className="mt-2 flex flex-col gap-1 text-[#5d6a85]">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-black uppercase text-gray-400">User:</span>
+                              <span className="text-xs font-bold text-editorial-navy">{tx.userName}</span>
+                              <span className="text-[10px] text-gray-400 font-medium">({tx.userEmail})</span>
+                            </div>
+                            
+                            {tx.address && (
+                              <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg mt-1 group">
+                                <span className="text-[10px] font-black uppercase text-gray-400">Wallet:</span>
+                                <code className="text-[11px] font-mono font-bold text-editorial-navy truncate max-w-[240px]">
+                                  {tx.address}
+                                </code>
+                                <button 
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(tx.address || "");
+                                    alert("Address copied!");
+                                  }}
+                                  className="p-1 hover:bg-white rounded transition-colors text-gray-400 hover:text-editorial-navy"
+                                  title="Copy Address"
+                                >
+                                  <Copy size={12} />
+                                </button>
+                              </div>
+                            )}
+                            
+                            <div className="text-[9px] font-bold text-gray-300 uppercase tracking-widest mt-1">
+                              {tx.timestamp?.toDate ? tx.timestamp.toDate().toLocaleString() : 'N/A'}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => handleUpdateTransaction(tx.userId, tx.id, 'completed')}
-                          className="px-6 py-3 bg-green-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-green-700 active:scale-95 transition-all shadow-lg shadow-green-200"
-                        >
-                          {t('approveBtn')}
-                        </button>
-                        <button 
-                          onClick={() => handleUpdateTransaction(tx.userId, tx.id, 'failed')}
-                          className="px-6 py-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200"
-                        >
-                          {t('rejectBtn')}
-                        </button>
-                      </div>
+                      
+                      {tx.status === 'pending' && (
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleUpdateTransaction(tx.userId, tx.id, 'completed')}
+                            className="px-6 py-3 bg-green-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-green-700 active:scale-95 transition-all shadow-lg shadow-green-200"
+                          >
+                            {t('approveBtn')}
+                          </button>
+                          <button 
+                            onClick={() => handleUpdateTransaction(tx.userId, tx.id, 'failed')}
+                            className="px-6 py-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200"
+                          >
+                            {t('rejectBtn')}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
@@ -1920,6 +2054,7 @@ const AdminPanelView = ({
             </div>
           </div>
         )}
+
 
         {/* Member Management View */}
         {(activeSubView === 'members' || activeSubView === 'positions') && (
@@ -2202,13 +2337,17 @@ const DashboardView = ({
   const [activeTab, setActiveTab] = useState<'home' | 'history' | 'invite' | 'settings'>('home');
   const [activeSettingsView, setActiveSettingsView] = useState<'main' | 'security' | 'wallet'>('main');
   
-  // Real-time Balance States fetched from Firestore
-  const [principalBalance, setPrincipalBalance] = useState(0);
-  const [totalEarnings, setTotalEarnings] = useState(0);
-  const [yesterdayEarnings, setYesterdayEarnings] = useState(0);
-  
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [showDepositModal, setShowDepositModal] = useState(false);
+    // Real-time Balance States fetched from Firestore
+    const [principalBalance, setPrincipalBalance] = useState(0);
+    const [totalEarnings, setTotalEarnings] = useState(0);
+    const [yesterdayEarnings, setYesterdayEarnings] = useState(0);
+    const [lastSettlementTime, setLastSettlementTime] = useState<Date | null>(null);
+    
+    // Ticking earnings state (separate from totalEarnings to handle compounding smoothly)
+    const [accruedSinceSettlement, setAccruedSinceSettlement] = useState(0);
+
+    const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+    const [showDepositModal, setShowDepositModal] = useState(false);
   const [depositNetwork, setDepositNetwork] = useState<'TRC20' | 'ERC20'>('TRC20');
   const [copied, setCopied] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -2217,7 +2356,8 @@ const DashboardView = ({
   const [withdrawAmount, setWithdrawAmount] = useState<string>("");
   const [withdrawAddress, setWithdrawAddress] = useState<string>("");
   const [withdrawNetwork, setWithdrawNetwork] = useState<'TRC20' | 'ERC20'>('TRC20');
-  const [historyTab, setHistoryTab] = useState<'earnings' | 'capital'>('earnings');
+  const [historyTab, setHistoryTab] = useState<'earnings' | 'capital' | 'transactions'>('earnings');
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [walletAddress, setWalletAddress] = useState("");
   const [isDepositing, setIsDepositing] = useState(false);
   const [showSupportQrModal, setShowSupportQrModal] = useState(false);
@@ -2285,13 +2425,43 @@ const DashboardView = ({
 
     // Listen to Portfolio
     const portfolioRef = doc(db, 'users', userProfile.uid, 'portfolio', 'main');
-    const unsubPortfolio = onSnapshot(portfolioRef, (snapshot) => {
+    const unsubPortfolio = onSnapshot(portfolioRef, async (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data();
-        setPrincipalBalance(data.principalBalance || 0);
-        setTotalEarnings(data.totalEarnings || 0);
+        const principal = data.principalBalance || 0;
+        const earnings = data.totalEarnings || 0;
+        const lastUpdated = data.lastUpdated?.toDate() || new Date();
+
+        setPrincipalBalance(principal);
+        setTotalEarnings(earnings);
+        setLastSettlementTime(lastUpdated);
+
+        // Perform settlement if long time passed (e.g. 1 hour)
+        const now = new Date();
+        const secondsPassed = (now.getTime() - lastUpdated.getTime()) / 1000;
+        
+        // If more than 1 hour passed and user has balance, perform a compounding settlement
+        if (principal > 0 && secondsPassed >= 3600) {
+          const apyFactor = liveApy / 100;
+          // Continuous compounding approx: P * (e^(rt) - 1) 
+          // but we use discrete per-second compounding for consistency
+          const interest = principal * (Math.pow(1 + (apyFactor / (365 * 24 * 3600)), secondsPassed) - 1);
+          
+          if (interest > 0.000001) {
+            try {
+              await setDoc(portfolioRef, {
+                principalBalance: principal + interest,
+                totalEarnings: earnings + interest,
+                lastUpdated: serverTimestamp()
+              }, { merge: true });
+            } catch (err) {
+              console.error("Auto Settlement Error:", err);
+            }
+          }
+        }
+
         // Sync parent for unified calculations
-        onAccountUpdate(data.principalBalance || 0, data.totalEarnings || 0);
+        onAccountUpdate(principal, earnings);
       } else {
         // Initialize portfolio if not exists
         setDoc(portfolioRef, {
@@ -2302,7 +2472,17 @@ const DashboardView = ({
       }
     }, (err) => handleFirestoreError(err, OperationType.GET, portfolioRef.path));
 
-    return () => unsubPortfolio();
+    // Listen to Transactions
+    const txRef = collection(db, 'users', userProfile!.uid, 'transactions');
+    const qTx = query(txRef, orderBy('timestamp', 'desc'), limit(50));
+    const unsubTx = onSnapshot(qTx, (snapshot) => {
+      setTransactions(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (err) => handleFirestoreError(err, OperationType.GET, txRef.path));
+
+    return () => {
+      unsubPortfolio();
+      unsubTx();
+    };
   }, [userProfile?.uid, onAccountUpdate]);
 
   const isNewUser = principalBalance <= 0;
@@ -2346,8 +2526,8 @@ const DashboardView = ({
   };
 
   const depositAddresses = {
-    TRC20: sysSettings.depositWalletTrc20 || "TA2f8kP6q8v8r8r8r8r8rpcF9S7qZ7v7v7",
-    ERC20: sysSettings.depositWalletErc20 || "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+    TRC20: sysSettings.depositWalletTrc20 || "TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    ERC20: sysSettings.depositWalletErc20 || "0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
   };
 
   // Initialize mock earnings based on principal if it's an "old user" (coming from landing or test deposit)
@@ -2370,25 +2550,36 @@ const DashboardView = ({
 
   // Real-time ticking logic
   useEffect(() => {
-    if (isNewUser) return;
+    if (isNewUser || !lastSettlementTime) return;
     
-    // Increment amount per second = (principal * APY) / (365 * 24 * 3600)
+    // Initial accrued calculation from last settlement to now (to catch up pending)
+    const calculatePending = () => {
+      const now = new Date();
+      const secondsSinceSettle = (now.getTime() - lastSettlementTime.getTime()) / 1000;
+      const apyFactor = liveApy / 100;
+      return principalBalance * (Math.pow(1 + (apyFactor / (365 * 24 * 3600)), Math.max(0, secondsSinceSettle)) - 1);
+    };
+
+    setAccruedSinceSettlement(calculatePending());
+
     const apyFactor = liveApy / 100;
     const incrementPerSecond = (principalBalance * apyFactor) / (365 * 24 * 3600);
     
     const timer = setInterval(() => {
-      setTotalEarnings(prev => prev + incrementPerSecond);
+      setAccruedSinceSettlement(prev => prev + incrementPerSecond);
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [isNewUser, principalBalance, liveApy]);
+  }, [isNewUser, principalBalance, liveApy, lastSettlementTime]);
 
-  const displayTotalBalance = principalBalance + totalEarnings;
+  const displayTotalBalance = principalBalance + accruedSinceSettlement;
+  const displayTotalEarnings = totalEarnings + accruedSinceSettlement;
 
   const handleWithdraw = async () => {
     const amount = parseFloat(withdrawAmount);
     if (isNaN(amount) || amount <= 0 || amount > displayTotalBalance || !userProfile?.uid) return;
 
+    setIsWithdrawing(true);
     try {
       const txRef = doc(collection(db, 'users', userProfile.uid, 'transactions'));
       await setDoc(txRef, {
@@ -2407,11 +2598,17 @@ const DashboardView = ({
         lastUpdated: serverTimestamp()
       }, { merge: true });
 
+      alert(currentLang === 'jp' ? "出金申請が送信されました。審査をお待ちください。" : currentLang === 'cn' ? "提现申请已提交，请等待审核。" : "Withdrawal request submitted. Please wait for review.");
+      
       setWithdrawAmount("");
       setWithdrawAddress("");
       setShowWithdrawModal(false);
     } catch (error) {
+      console.error("Withdraw Error:", error);
+      alert("Error: " + (error instanceof Error ? error.message : "Unknown error"));
       handleFirestoreError(error, OperationType.WRITE, 'withdrawal_flow');
+    } finally {
+      setIsWithdrawing(false);
     }
   };
 
@@ -2621,6 +2818,12 @@ const DashboardView = ({
         >
           {t('capitalChanges')}
         </button>
+        <button 
+          onClick={() => setHistoryTab('transactions')}
+          className={`flex-1 pb-3 text-[11px] uppercase tracking-widest transition-colors ${historyTab === 'transactions' ? 'text-editorial-gold border-b-2 border-editorial-gold' : 'text-gray-300'}`}
+        >
+          {t('withdrawHistory')}
+        </button>
       </div>
 
       <div className="space-y-3">
@@ -2643,7 +2846,7 @@ const DashboardView = ({
               </p>
             </div>
           )
-        ) : (
+        ) : historyTab === 'capital' ? (
           // Capital Movements
           capitalHistory.length > 0 ? (
             capitalHistory.map((item, idx) => (
@@ -2659,6 +2862,43 @@ const DashboardView = ({
              <div className="py-20 text-center">
               <p className="text-[10px] text-gray-300 font-bold uppercase tracking-widest">
                 {t('noCapital')}
+              </p>
+            </div>
+          )
+        ) : (
+          // Transactions History
+          transactions.length > 0 ? (
+            transactions.map((tx, idx) => (
+              <div key={idx} className="bg-white p-4 flex items-center justify-between border border-gray-50 rounded shadow-sm">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black">
+                      {tx.type === 'withdrawal' ? 'Withdraw USDT' : 'Deposit USDT'}
+                    </span>
+                    <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                      tx.status === 'pending' ? 'bg-yellow-500/10 text-yellow-600' : 
+                      tx.status === 'completed' ? 'bg-green-500/10 text-green-600' : 
+                      'bg-red-500/10 text-red-600'
+                    }`}>
+                      {t(`status${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}`)}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold text-gray-400">
+                    {tx.timestamp?.toDate ? tx.timestamp.toDate().toLocaleString() : 'Processing...'}
+                  </span>
+                  {tx.address && (
+                    <span className="text-[8px] font-mono text-gray-300 truncate max-w-[150px]">{tx.address}</span>
+                  )}
+                </div>
+                <span className={`text-sm font-black ${tx.type === 'withdrawal' ? 'text-gray-900' : 'text-editorial-green'}`}>
+                  {tx.type === 'withdrawal' ? '-' : '+'}{tx.amount?.toLocaleString()}
+                </span>
+              </div>
+            ))
+          ) : (
+            <div className="py-20 text-center">
+              <p className="text-[10px] text-gray-300 font-bold uppercase tracking-widest">
+                {t('historyEmpty')}
               </p>
             </div>
           )
@@ -3122,7 +3362,7 @@ const DashboardView = ({
               </div>
               <div className="text-center border-x border-white/10">
                 <div className="text-[8px] font-bold text-white/50 uppercase tracking-wider mb-0.5 px-1 leading-tight">{t('totalYield')}</div>
-                <div className="text-xs font-black text-white">{!isNewUser ? `+$${totalEarnings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$0.00"}</div>
+                <div className="text-xs font-black text-white">{!isNewUser ? `+$${displayTotalEarnings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$0.00"}</div>
               </div>
               <div className="text-center">
                 <div className="text-[8px] font-bold text-white/50 uppercase tracking-wider mb-0.5 px-1 leading-tight">{t('currentApy')}</div>
@@ -3802,7 +4042,7 @@ export default function App() {
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState<number | string>(10000);
-  const [liveApy, setLiveApy] = useState(4.82);
+  const [liveApy, setLiveApy] = useState(12.45);
   const [showTooltip, setShowTooltip] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authSuccess, setAuthSuccess] = useState(false);
@@ -3961,8 +4201,8 @@ export default function App() {
   const calculateYield = (amount: number, apy: number) => {
     // Current live yield for annual
     const annual = amount * (apy / 100);
-    // Conservative 4.5% floor for monthly simulation
-    const monthlyConservative = amount * (4.5 / 100) / 12;
+    // Conservative 8.5% floor for monthly simulation
+    const monthlyConservative = amount * (8.5 / 100) / 12;
     return { annual, monthly: monthlyConservative };
   };
 
@@ -4142,7 +4382,7 @@ export default function App() {
                         className="h-full bg-editorial-gold"
                       />
                     </div>
-                    <div className="text-lg md:text-xl font-black italic tracking-tighter text-editorial-highlight leading-none">4.5% - 5.2%</div>
+                    <div className="text-lg md:text-xl font-black italic tracking-tighter text-editorial-highlight leading-none">8.5% - 26.8%</div>
                   </div>
 
                   {/* Yield Calculator */}
