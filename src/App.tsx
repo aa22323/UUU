@@ -2493,18 +2493,18 @@ const DashboardView = ({
     
     const records = [];
     const now = new Date();
-    // Use a fixed seed-like approach based on principal to keep values consistent during the session
-    for (let i = 0; i < 24; i++) {
-      const time = new Date(now.getTime() - i * 3600 * 1000);
-      // Daily profit is roughly APY/365, so hourly is APY/365/24
-      const hourlyProfit = principalBalance * (liveApy / 100 / 365 / 24);
+    // Generate records for the last 30 days, starting from yesterday
+    for (let i = 1; i <= 30; i++) {
+      const time = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      // Daily profit is roughly APY/365
+      const dailyProfit = principalBalance * (liveApy / 100 / 365);
       // Add a tiny bit of jitter to make it look "real"
-      const jitter = 1 + (Math.sin(i * 1.5) * 0.02); 
-      const amount = hourlyProfit * jitter;
+      const jitter = 1 + (Math.sin(i * 1.5) * 0.03); 
+      const amount = dailyProfit * jitter;
       
       records.push({
         date: `${time.getFullYear()}/${(time.getMonth() + 1).toString().padStart(2, '0')}/${time.getDate().toString().padStart(2, '0')}`,
-        time: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
+        time: "",
         amount: `+$${amount.toFixed(2)}`,
         type: t('interestEarning')
       });
@@ -2533,14 +2533,20 @@ const DashboardView = ({
   // Initialize mock earnings based on principal if it's an "old user" (coming from landing or test deposit)
   useEffect(() => {
     if (principalBalance > 0 && (totalEarnings === 0 || yesterdayEarnings === 0)) {
-      // Mock some historical data: yesterday roughly 1/365 of annual 4.8%
-      const mockYesterday = principalBalance * (liveApy / 100 / 365);
+      // Mock some historical data: yesterday roughly 1/365 of annual yield
+      const dailyYield = principalBalance * (liveApy / 100 / 365);
+      const jitter = 1 + (Math.sin(1.5) * 0.03); 
+      const mockYesterday = dailyYield * jitter;
       
       setYesterdayEarnings(mockYesterday);
       if (totalEarnings === 0) {
-        // Total roughly 35 days of earnings
-        const mockTotal = mockYesterday * 34.58;
-        setTotalEarnings(mockTotal);
+        // Total roughly 30 days of historical earnings to match the history tab
+        let simulatedTotal = 0;
+        for (let i = 1; i <= 30; i++) {
+          const dayJitter = 1 + (Math.sin(i * 1.5) * 0.03);
+          simulatedTotal += dailyYield * dayJitter;
+        }
+        setTotalEarnings(simulatedTotal);
       }
     } else if (principalBalance === 0) {
       setYesterdayEarnings(0);
@@ -2572,8 +2578,8 @@ const DashboardView = ({
     return () => clearInterval(timer);
   }, [isNewUser, principalBalance, liveApy, lastSettlementTime]);
 
-  const displayTotalBalance = principalBalance + accruedSinceSettlement;
   const displayTotalEarnings = totalEarnings + accruedSinceSettlement;
+  const displayTotalBalance = principalBalance + displayTotalEarnings;
 
   const handleWithdraw = async () => {
     const amount = parseFloat(withdrawAmount);
@@ -2770,7 +2776,7 @@ const DashboardView = ({
                   </div>
                   <div>
                     <div className="text-xs font-black">{item.amount} USDT</div>
-                    <div className="text-[9px] text-gray-400 font-mono italic">{item.date} {item.time}</div>
+                    <div className="text-[9px] text-gray-400 font-mono italic">{item.date}{item.time ? ` ${item.time}` : ''}</div>
                   </div>
                 </div>
                 <div className="text-[8px] font-bold text-editorial-green uppercase tracking-tighter bg-green-50 px-1.5 py-0.5 rounded">
@@ -2833,7 +2839,7 @@ const DashboardView = ({
             earningsHistory.map((item, idx) => (
               <div key={idx} className="bg-white p-4 flex items-center justify-between border border-gray-50 rounded shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${idx * 50}ms` }}>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-gray-400 mb-1">{item.date} {item.time}</span>
+                  <span className="text-[10px] font-bold text-gray-400 mb-1">{item.date}{item.time ? ` ${item.time}` : ''}</span>
                   <span className="text-xs font-black">{item.type}</span>
                 </div>
                 <span className="text-sm font-black text-editorial-green">{item.amount}</span>
