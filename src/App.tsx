@@ -1593,12 +1593,58 @@ const NumberCounter = ({ value, precision = 2, extraPrecision = 4 }: { value: nu
 /**
  * Admin Panel Component
  */
+/**
+ * Real-time balance component for Admin list
+ */
+const AdminUserBalance = ({ user, type, defaultApy }: { user: any, type: 'principal' | 'earnings', defaultApy: number }) => {
+  const [accrued, setAccrued] = useState(0);
+
+  useEffect(() => {
+    // If user has no principal, nothing to accrue
+    if ((user.principalBalance || 0) <= 0) {
+      setAccrued(0);
+      return;
+    }
+
+    const apy = user.customApy || defaultApy; 
+    const principal = user.principalBalance || 0;
+    
+    // Convert Firestore timestamp to Date
+    const lastSettlement = user.lastSettlementTime?.seconds 
+      ? new Date(user.lastSettlementTime.seconds * 1000) 
+      : new Date();
+
+    const calculate = () => {
+      const now = new Date();
+      const elapsed = (now.getTime() - lastSettlement.getTime()) / 1000;
+      if (elapsed < 0) return 0;
+      // Formula: Daily profit / 24 / 3600 per second
+      return principal * (apy / 100 / 365 / 24 / 3600) * elapsed;
+    };
+
+    setAccrued(calculate());
+    const timer = setInterval(() => {
+      setAccrued(calculate());
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [user.id, user.principalBalance, user.customApy, user.lastSettlementTime, defaultApy]);
+
+  if (type === 'principal') {
+    return <span>${(user.principalBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span>;
+  }
+  
+  return <span className="text-green-600">${(user.totalEarnings + accrued).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span>;
+};
+
 const AdminPanelView = ({ 
   onBack, 
-  currentLang 
+  currentLang,
+  liveApy
 }: { 
   onBack: () => void, 
-  currentLang: string 
+  currentLang: string,
+  liveApy: number
 }) => {
   const t = (key: string, params?: Record<string, any>) => {
     let text = TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS.en[key] || key;
@@ -1627,41 +1673,78 @@ const AdminPanelView = ({
   const [isLoading, setIsLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<any>(null);
 
-  // Load Data
+  // Real-time listener for user list
   useEffect(() => {
+    let unsubUsers: (() => void) | null = null;
+    
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const [usersSnap, settingsSnap] = await Promise.all([
-          getDocs(collection(db, 'users')),
-          getDoc(doc(db, 'settings', 'system'))
-        ]);
-
-        const userList = await Promise.all(usersSnap.docs.map(async (uDoc) => {
-          const userData = uDoc.data();
-          const portfolioSnap = await getDoc(doc(db, 'users', uDoc.id, 'portfolio', 'main'));
-          const portfolioData = portfolioSnap.exists() ? portfolioSnap.data() : { principalBalance: 0, totalEarnings: 0 };
-          return {
-            id: uDoc.id,
-            ...userData,
-            principalBalance: portfolioData.principalBalance,
-            totalEarnings: portfolioData.totalEarnings
-          };
-        }));
-        setUsers(userList);
-
+        const settingsSnap = await getDoc(doc(db, 'settings', 'system'));
         if (settingsSnap.exists()) {
-          const data = settingsSnap.data();
-          setSystemSettings((prev: any) => ({ ...prev, ...data }));
+          setSystemSettings((prev: any) => ({ ...prev, ...settingsSnap.data() }));
         }
+
+        // Real-time listener for user list
+        unsubUsers = onSnapshot(collection(db, 'users'), async (snapshot) => {
+          const userList = await Promise.all(snapshot.docs.map(async (uDoc) => {
+            const userData = uDoc.data();
+            const portfolioSnap = await getDoc(doc(db, 'users', uDoc.id, 'portfolio', 'main'));
+            const portfolioData = portfolioSnap.exists() ? portfolioSnap.data() : { principalBalance: 0, totalEarnings: 0 };
+            
+            const userObj = {
+              ...userData,
+              id: uDoc.id,
+              principalBalance: portfolioData.principalBalance || 0,
+              totalEarnings: portfolioData.totalEarnings || 0,
+              lastSettlementTime: portfolioData.lastUpdated
+            };
+
+            // --- AUTO-SETTLEMENT FOR OFFLINE USERS ---
+            // If admin sees a user who is overdue (24h+), settle for them
+            if (userObj.principalBalance > 0 && userObj.lastSettlementTime) {
+              const lastSettle = (userObj.lastSettlementTime as any).toDate ? (userObj.lastSettlementTime as any).toDate() : new Date((userObj.lastSettlementTime as any).seconds * 1000);
+              const now = new Date();
+              const secondsPassed = (now.getTime() - lastSettle.getTime()) / 1000;
+
+              if (secondsPassed >= 86400) {
+                const daysPassed = Math.floor(secondsPassed / 86400);
+                const apy = (userObj as any).customApy || liveApy;
+                const dailyProfit = userObj.principalBalance * (apy / 100 / 365);
+                const totalNewEarnings = dailyProfit * daysPassed;
+
+                if (totalNewEarnings > 0) {
+                  const portfolioRef = doc(db, 'users', uDoc.id, 'portfolio', 'main');
+                  updateDoc(portfolioRef, {
+                    totalEarnings: (userObj.totalEarnings || 0) + totalNewEarnings,
+                    lastUpdated: serverTimestamp()
+                  }).catch(e => console.error("Admin auto-settle error:", e));
+                  
+                  // Update locally to avoid flicker
+                  userObj.totalEarnings += totalNewEarnings;
+                }
+              }
+            }
+
+            return userObj;
+          }));
+          setUsers(userList);
+          setIsLoading(false);
+        }, (err) => {
+          console.error("Admin Users Sync Error:", err);
+          setIsLoading(false);
+        });
       } catch (err) {
         console.error("Admin Initial Load Error:", err);
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     loadData();
-  }, []);
+    return () => {
+      if (unsubUsers) unsubUsers();
+    };
+  }, [liveApy]); // Depend on liveApy to ensure calculation is correct
 
   // Refresh dynamic data like transactions on tab switch
   useEffect(() => {
@@ -2093,10 +2176,10 @@ const AdminPanelView = ({
                         </div>
                       </td>
                       <td className="px-6 py-4 text-xs font-black italic tracking-tight text-editorial-navy">
-                        ${(user.principalBalance || 0).toLocaleString()}
+                        <AdminUserBalance user={user} type="principal" defaultApy={liveApy} />
                       </td>
-                      <td className="px-6 py-4 text-xs font-black italic tracking-tight text-green-600">
-                        ${(user.totalEarnings || 0).toLocaleString()}
+                      <td className="px-6 py-4 text-xs font-black italic tracking-tight">
+                        <AdminUserBalance user={user} type="earnings" defaultApy={liveApy} />
                       </td>
                       <td className="px-6 py-4 font-black">
                          <span className={`text-[10px] px-2 py-0.5 rounded-full ${user.customApy ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-gray-50 text-gray-400'}`}>
@@ -2363,11 +2446,6 @@ const DashboardView = ({
   const [showSupportQrModal, setShowSupportQrModal] = useState(false);
   const [pendingDepositAmount, setPendingDepositAmount] = useState<number | null>(null);
   const [depositInputAmount, setDepositInputAmount] = useState<string>("");
-  const [showAdminAuthModal, setShowAdminAuthModal] = useState(false);
-  const [adminCodeInput, setAdminCodeInput] = useState("");
-  const [adminCodeError, setAdminCodeError] = useState(false);
-  
-  // Referral States
   const [referrals, setReferrals] = useState<any[]>([]);
   const [referralCount, setReferralCount] = useState(0);
   const [totalReferralBonusAmount, setTotalReferralBonusAmount] = useState(0);
@@ -2436,24 +2514,24 @@ const DashboardView = ({
         setTotalEarnings(earnings);
         setLastSettlementTime(lastUpdated);
 
-        // Perform settlement if long time passed (e.g. 1 hour)
+        // Perform settlement if 24 hours passed
         const now = new Date();
         const secondsPassed = (now.getTime() - lastUpdated.getTime()) / 1000;
         
-        // If more than 1 hour passed and user has balance, perform a compounding settlement
-        if (principal > 0 && secondsPassed >= 3600) {
-          const apyFactor = liveApy / 100;
-          // Continuous compounding approx: P * (e^(rt) - 1) 
-          // but we use discrete per-second compounding for consistency
-          const interest = principal * (Math.pow(1 + (apyFactor / (365 * 24 * 3600)), secondsPassed) - 1);
+        // Settlement interval: 24 hours (86400 seconds)
+        if (principal > 0 && secondsPassed >= 86400) {
+          const daysPassed = Math.floor(secondsPassed / 86400);
+          const dailyProfit = principal * (liveApy / 100 / 365);
+          const totalNewEarnings = dailyProfit * daysPassed;
           
-          if (interest > 0.000001) {
+          if (totalNewEarnings > 0) {
             try {
-              await setDoc(portfolioRef, {
-                principalBalance: principal + interest,
-                totalEarnings: earnings + interest,
+              await updateDoc(portfolioRef, {
+                totalEarnings: earnings + totalNewEarnings,
                 lastUpdated: serverTimestamp()
-              }, { merge: true });
+              });
+              // Resetting baseline
+              setYesterdayEarnings(dailyProfit);
             } catch (err) {
               console.error("Auto Settlement Error:", err);
             }
@@ -2489,27 +2567,8 @@ const DashboardView = ({
 
   // Dynamic history generation based on current time and balance
   const earningsHistory = useMemo(() => {
-    if (isNewUser) return [];
-    
-    const records = [];
-    const now = new Date();
-    // Generate records for the last 30 days, starting from yesterday
-    for (let i = 1; i <= 30; i++) {
-      const time = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      // Daily profit is roughly APY/365
-      const dailyProfit = principalBalance * (liveApy / 100 / 365);
-      // Add a tiny bit of jitter to make it look "real"
-      const jitter = 1 + (Math.sin(i * 1.5) * 0.03); 
-      const amount = dailyProfit * jitter;
-      
-      records.push({
-        date: `${time.getFullYear()}/${(time.getMonth() + 1).toString().padStart(2, '0')}/${time.getDate().toString().padStart(2, '0')}`,
-        time: "",
-        amount: `+$${amount.toFixed(2)}`,
-        type: t('interestEarning')
-      });
-    }
-    return records;
+    // 移除模拟历史，真实平台应仅显示实际发生的流水（目前流水尚未持久化，故显示空）
+    return [];
   }, [principalBalance, liveApy, isNewUser, currentLang]);
 
   const capitalHistory = useMemo(() => {
@@ -2531,28 +2590,13 @@ const DashboardView = ({
   };
 
   // Initialize mock earnings based on principal if it's an "old user" (coming from landing or test deposit)
+  // 移除模拟历史数据的 Effect，确保所有数据来自数据库或真实的实时计算
   useEffect(() => {
-    if (principalBalance > 0 && (totalEarnings === 0 || yesterdayEarnings === 0)) {
-      // Mock some historical data: yesterday roughly 1/365 of annual yield
-      const dailyYield = principalBalance * (liveApy / 100 / 365);
-      const jitter = 1 + (Math.sin(1.5) * 0.03); 
-      const mockYesterday = dailyYield * jitter;
-      
-      setYesterdayEarnings(mockYesterday);
-      if (totalEarnings === 0) {
-        // Total roughly 30 days of historical earnings to match the history tab
-        let simulatedTotal = 0;
-        for (let i = 1; i <= 30; i++) {
-          const dayJitter = 1 + (Math.sin(i * 1.5) * 0.03);
-          simulatedTotal += dailyYield * dayJitter;
-        }
-        setTotalEarnings(simulatedTotal);
-      }
-    } else if (principalBalance === 0) {
+    if (principalBalance === 0) {
       setYesterdayEarnings(0);
       setTotalEarnings(0);
     }
-  }, [principalBalance, liveApy]);
+  }, [principalBalance]);
 
   // Real-time ticking logic
   useEffect(() => {
@@ -2563,7 +2607,8 @@ const DashboardView = ({
       const now = new Date();
       const secondsSinceSettle = (now.getTime() - lastSettlementTime.getTime()) / 1000;
       const apyFactor = liveApy / 100;
-      return principalBalance * (Math.pow(1 + (apyFactor / (365 * 24 * 3600)), Math.max(0, secondsSinceSettle)) - 1);
+      // Discrete per-second compounding approximation
+      return principalBalance * (apyFactor / (365 * 24 * 3600)) * Math.max(0, secondsSinceSettle);
     };
 
     setAccruedSinceSettlement(calculatePending());
@@ -3086,9 +3131,7 @@ const DashboardView = ({
               key={idx} 
               onClick={() => {
                 if (item.id === 'admin') {
-                  setShowAdminAuthModal(true);
-                  setAdminCodeInput("");
-                  setAdminCodeError(false);
+                  onAdminPanel();
                 }
                 else if (item.id === 'security' || item.id === 'wallet' || item.id === 'language') setActiveSettingsView(item.id as any);
               }}
@@ -3878,95 +3921,6 @@ const DashboardView = ({
           </div>
         )}
       </AnimatePresence>
-
-      {/* Admin PIN Authentication Modal */}
-      <AnimatePresence>
-        {showAdminAuthModal && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 text-editorial-navy">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowAdminAuthModal(false)}
-              className="absolute inset-0 bg-editorial-navy/60 backdrop-blur-md"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative bg-white w-full max-w-sm rounded p-8 shadow-2xl border-t-4 border-editorial-gold z-[301]"
-            >
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-full bg-editorial-gold/5 flex items-center justify-center text-editorial-gold mb-6 border border-editorial-gold/20 shadow-inner">
-                  <ShieldCheck size={32} />
-                </div>
-                <h3 className="text-xl font-black italic tracking-tight uppercase mb-2 leading-tight">
-                  {t('adminAuthTitle')}
-                </h3>
-                <p className="text-[10px] text-editorial-gray font-bold leading-relaxed mb-8">
-                  {t('adminAuthDesc')}
-                </p>
-                
-                <div className="w-full space-y-4">
-                  <div className="relative group">
-                    <input 
-                      type="password"
-                      maxLength={12}
-                      value={adminCodeInput}
-                      autoFocus
-                      inputMode="numeric"
-                      onChange={(e) => {
-                        setAdminCodeInput(e.target.value);
-                        setAdminCodeError(false);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          const currentSecret = sysSettings.adminSecretCode || "888888";
-                          if (adminCodeInput === currentSecret) {
-                            setShowAdminAuthModal(false);
-                            onAdminPanel();
-                          } else {
-                            setAdminCodeError(true);
-                          }
-                        }
-                      }}
-                      placeholder={t('adminAuthPlaceholder')}
-                      className={`w-full bg-gray-50 border-2 ${adminCodeError ? 'border-red-500' : 'border-gray-100'} p-4 rounded text-center text-lg font-black tracking-[0.5em] focus:outline-none focus:border-editorial-gold transition-all`}
-                    />
-                    {adminCodeError && (
-                      <p className="text-[9px] text-red-500 font-bold mt-2 uppercase tracking-tighter animate-bounce">
-                        {t('adminAuthError')}
-                      </p>
-                    )}
-                  </div>
-
-                  <button 
-                    onClick={() => {
-                      const currentSecret = sysSettings.adminSecretCode || "888888";
-                      if (adminCodeInput === currentSecret) {
-                        setShowAdminAuthModal(false);
-                        onAdminPanel();
-                      } else {
-                        setAdminCodeError(true);
-                      }
-                    }}
-                    className="w-full bg-editorial-navy text-white font-black py-4 rounded text-xs uppercase tracking-[0.2em] shadow-xl shadow-editorial-navy/10 active:scale-95 transition-transform"
-                  >
-                    {t('verify')}
-                  </button>
-                  
-                  <button 
-                    onClick={() => setShowAdminAuthModal(false)}
-                    className="w-full text-editorial-gray font-black py-2 text-[10px] uppercase tracking-widest hover:text-editorial-navy transition-colors"
-                  >
-                    {t('cancel')}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
@@ -4245,6 +4199,7 @@ export default function App() {
             <AdminPanelView 
               onBack={() => setView('dashboard')}
               currentLang={currentLang}
+              liveApy={liveApy}
             />
           </motion.div>
         ) : view === 'dashboard' ? (
