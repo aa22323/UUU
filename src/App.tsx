@@ -1713,16 +1713,30 @@ const AdminPanelView = ({
                 const dailyProfit = userObj.principalBalance * (apy / 100 / 365);
                 const totalNewEarnings = dailyProfit * daysPassed;
 
-                if (totalNewEarnings > 0) {
-                  const portfolioRef = doc(db, 'users', uDoc.id, 'portfolio', 'main');
-                  updateDoc(portfolioRef, {
-                    totalEarnings: (userObj.totalEarnings || 0) + totalNewEarnings,
-                    lastUpdated: serverTimestamp()
-                  }).catch(e => console.error("Admin auto-settle error:", e));
-                  
-                  // Update locally to avoid flicker
-                  userObj.totalEarnings += totalNewEarnings;
-                }
+                 if (totalNewEarnings > 0) {
+                   const portfolioRef = doc(db, 'users', uDoc.id, 'portfolio', 'main');
+                   const batch = writeBatch(db);
+                   
+                   batch.set(portfolioRef, {
+                     totalEarnings: (userObj.totalEarnings || 0) + totalNewEarnings,
+                     lastUpdated: serverTimestamp()
+                   }, { merge: true });
+
+                   for (let i = 0; i < daysPassed; i++) {
+                     const recRef = doc(collection(db, 'users', uDoc.id, 'portfolio', 'main', 'earnings'));
+                     batch.set(recRef, {
+                       amount: dailyProfit,
+                       type: 'daily_yield',
+                       timestamp: serverTimestamp(),
+                       description: `Admin Auto-Settlement (${userObj.principalBalance.toLocaleString()} USDT @ ${apy}%)`
+                     });
+                   }
+                   
+                   batch.commit().catch(e => console.error("Admin auto-settle error:", e));
+                   
+                   // Update locally to avoid flicker
+                   userObj.totalEarnings += totalNewEarnings;
+                 }
               }
             }
 
@@ -1828,20 +1842,25 @@ const AdminPanelView = ({
 
   const handleSaveUser = async () => {
     if (!editingUser) return;
+    console.log("Saving user:", editingUser.id, editingUser);
+    
     try {
+      // 1. Update Profile Info
       const userRef = doc(db, 'users', editingUser.id);
       await setDoc(userRef, {
         name: editingUser.name,
-        customApy: editingUser.customApy ? parseFloat(editingUser.customApy) : null,
+        customApy: editingUser.customApy ? parseFloat(editingUser.customApy.toString()) : null,
         role: editingUser.role
       }, { merge: true });
       
+      // 2. Settlement & Portfolio Update
       const portfolioRef = doc(db, 'users', editingUser.id, 'portfolio', 'main');
       const portfolioSnap = await getDoc(portfolioRef);
-      let finalEarnings = parseFloat(editingUser.totalEarnings) || 0;
       
-      // If the admin didn't manually change the earnings field, let's settle the current accrued interest
-      // to ensure historical interest is preserved and not wrongly calculated on the new principal.
+      let principalNum = parseFloat(editingUser.principalBalance?.toString()) || 0;
+      let earningsInInput = parseFloat(editingUser.totalEarnings?.toString()) || 0;
+      let finalEarnings = earningsInInput;
+      
       if (portfolioSnap.exists()) {
         const pData = portfolioSnap.data();
         const currentPrincipal = pData.principalBalance || 0;
@@ -1849,25 +1868,50 @@ const AdminPanelView = ({
         const lastUpdated = pData.lastUpdated?.toDate() || new Date();
         const secondsPassed = (new Date().getTime() - lastUpdated.getTime()) / 1000;
         
-        // If the principal is being changed, we MUST settle the old balance's interest first
-        const newPrincipal = parseFloat(editingUser.principalBalance) || 0;
-        if (newPrincipal !== currentPrincipal && currentPrincipal > 0 && secondsPassed > 0) {
-          const apy = editingUser.customApy ? parseFloat(editingUser.customApy) : liveApy;
+        // Settle accrued interest if principal changed OR if long time passed without change
+        // This ensures the "100 from today" logic works
+        if (currentPrincipal > 0 && secondsPassed > 0) {
+          const apy = editingUser.customApy ? parseFloat(editingUser.customApy.toString()) : liveApy;
           const accrued = currentPrincipal * (apy / 100 / (365 * 24 * 3600)) * secondsPassed;
-          // If the admin didn't change the earnings field in the UI, we add the accrued interest
-          if (finalEarnings === currentEarnings) {
-             finalEarnings += accrued;
+          
+          // If the user didn't manually tweak the earnings field in the UI (approximate due to float precision)
+          const earningsModified = Math.abs(earningsInInput - currentEarnings) > 0.000001;
+          
+          if (!earningsModified) {
+             finalEarnings = currentEarnings + accrued;
+             
+             // Create a settlement record
+             try {
+               const recRef = doc(collection(db, 'users', editingUser.id, 'portfolio', 'main', 'earnings'));
+               await setDoc(recRef, {
+                 amount: accrued,
+                 type: 'adjustment_settle',
+                 timestamp: serverTimestamp(),
+                 description: `Settlement before update (${currentPrincipal.toLocaleString()} -> ${principalNum.toLocaleString()})`
+               });
+             } catch (recErr) {
+               console.warn("Could not create settlement record:", recErr);
+               // Continue anyway as the balance update is more important
+             }
           }
         }
       }
 
       await setDoc(portfolioRef, {
-        principalBalance: parseFloat(editingUser.principalBalance) || 0,
+        principalBalance: principalNum,
         totalEarnings: finalEarnings,
         lastUpdated: serverTimestamp()
       }, { merge: true });
 
-      setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...editingUser, totalEarnings: finalEarnings } : u));
+      setUsers(prev => prev.map(u => u.id === editingUser.id ? { 
+        ...u, 
+        name: editingUser.name,
+        role: editingUser.role,
+        customApy: editingUser.customApy,
+        principalBalance: principalNum,
+        totalEarnings: finalEarnings 
+      } : u));
+      
       alert(currentLang === 'hi' ? "उपयोगकर्ता विवरण सफलतापूर्वक सहेजे गए" : currentLang === 'jp' ? "ユーザー設定が保存されました" : "User settings saved successfully");
       setEditingUser(null);
     } catch (err) {
@@ -2387,11 +2431,11 @@ const AdminPanelView = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">主要本金 (USDT)</label>
-                    <input type="number" value={editingUser.principalBalance} onChange={e => setEditingUser({...editingUser, principalBalance: e.target.value})} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold" />
+                    <input type="number" step="any" value={editingUser.principalBalance} onChange={e => setEditingUser({...editingUser, principalBalance: e.target.value})} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">累计收益 (USDT)</label>
-                    <input type="number" value={editingUser.totalEarnings} onChange={e => setEditingUser({...editingUser, totalEarnings: e.target.value})} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold" />
+                    <input type="number" step="any" value={editingUser.totalEarnings} onChange={e => setEditingUser({...editingUser, totalEarnings: e.target.value})} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold" />
                   </div>
                 </div>
 
@@ -2449,6 +2493,7 @@ const DashboardView = ({
     const [totalEarnings, setTotalEarnings] = useState(0);
     const [yesterdayEarnings, setYesterdayEarnings] = useState(0);
     const [lastSettlementTime, setLastSettlementTime] = useState<Date | null>(null);
+    const [earningsRecords, setEarningsRecords] = useState<any[]>([]);
     
     // Ticking earnings state (separate from totalEarnings to handle compounding smoothly)
     const [accruedSinceSettlement, setAccruedSinceSettlement] = useState(0);
@@ -2550,12 +2595,26 @@ const DashboardView = ({
           
           if (totalNewEarnings > 0) {
             try {
-              await updateDoc(portfolioRef, {
+              const batch = writeBatch(db);
+              
+              // 1. Update Portfolio
+              batch.set(portfolioRef, {
                 totalEarnings: earnings + totalNewEarnings,
                 lastUpdated: serverTimestamp()
-              });
-              // Resetting baseline
-              setYesterdayEarnings(dailyProfit);
+              }, { merge: true });
+
+              // 2. Add History Records (one for each day passed)
+              for (let i = 0; i < daysPassed; i++) {
+                const recordRef = doc(collection(db, 'users', userProfile!.uid, 'portfolio', 'main', 'earnings'));
+                batch.set(recordRef, {
+                  amount: dailyProfit,
+                  type: 'daily_yield',
+                  timestamp: serverTimestamp(), // In real app, this should be the end of that specific day
+                  description: `Daily Interest Settlement (${principal.toLocaleString()} USDT @ ${liveApy}%)`
+                });
+              }
+
+              await batch.commit();
             } catch (err) {
               console.error("Auto Settlement Error:", err);
             }
@@ -2581,9 +2640,35 @@ const DashboardView = ({
       setTransactions(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (err) => handleFirestoreError(err, OperationType.GET, txRef.path));
 
+    // Listen to Earnings History
+    const earningsHistoryRef = collection(db, 'users', userProfile!.uid, 'portfolio', 'main', 'earnings');
+    const qEarnings = query(earningsHistoryRef, orderBy('timestamp', 'desc'), limit(30));
+    const unsubEarnings = onSnapshot(qEarnings, (snapshot) => {
+      const records = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setEarningsRecords(records);
+      
+      if (records.length > 0) {
+        // Sum up records from the last 24 hours to show a consistent "recent yield"
+        const now = new Date().getTime();
+        const past24h = now - (24 * 60 * 60 * 1000);
+        
+        const recentTotal = records.reduce((acc, rec: any) => {
+          const ts = rec.timestamp?.toDate ? rec.timestamp.toDate().getTime() : 0;
+          if (ts > past24h) {
+            return acc + (rec.amount || 0);
+          }
+          return acc;
+        }, 0);
+
+        // Fallback to the absolute latest if no records in 24h (edge case) or show the sum
+        setYesterdayEarnings(recentTotal > 0 ? recentTotal : ((records[0] as any).amount || 0));
+      }
+    }, (err) => handleFirestoreError(err, OperationType.GET, earningsHistoryRef.path));
+
     return () => {
       unsubPortfolio();
       unsubTx();
+      unsubEarnings();
     };
   }, [userProfile?.uid, onAccountUpdate]);
 
@@ -2591,16 +2676,20 @@ const DashboardView = ({
 
   // Dynamic history generation based on current time and balance
   const earningsHistory = useMemo(() => {
-    // 移除模拟历史，真实平台应仅显示实际发生的流水（目前流水尚未持久化，故显示空）
-    return [];
-  }, [principalBalance, liveApy, isNewUser, currentLang]);
+    return earningsRecords.map(rec => ({
+      date: rec.timestamp?.toDate ? rec.timestamp.toDate().toLocaleDateString() : new Date().toLocaleDateString(),
+      time: rec.timestamp?.toDate ? rec.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "00:00",
+      type: t('dailyEarning'),
+      amount: `+$${(rec.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT`
+    }));
+  }, [earningsRecords, t]);
 
   const capitalHistory = useMemo(() => {
     if (isNewUser) return [];
     return [
       { date: "2026/04/17", amount: `+$${principalBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, type: t('initialDeposit'), color: "text-editorial-navy" }
     ];
-  }, [principalBalance, isNewUser, currentLang]);
+  }, [principalBalance, isNewUser, t]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
