@@ -1837,13 +1837,37 @@ const AdminPanelView = ({
       }, { merge: true });
       
       const portfolioRef = doc(db, 'users', editingUser.id, 'portfolio', 'main');
+      const portfolioSnap = await getDoc(portfolioRef);
+      let finalEarnings = parseFloat(editingUser.totalEarnings) || 0;
+      
+      // If the admin didn't manually change the earnings field, let's settle the current accrued interest
+      // to ensure historical interest is preserved and not wrongly calculated on the new principal.
+      if (portfolioSnap.exists()) {
+        const pData = portfolioSnap.data();
+        const currentPrincipal = pData.principalBalance || 0;
+        const currentEarnings = pData.totalEarnings || 0;
+        const lastUpdated = pData.lastUpdated?.toDate() || new Date();
+        const secondsPassed = (new Date().getTime() - lastUpdated.getTime()) / 1000;
+        
+        // If the principal is being changed, we MUST settle the old balance's interest first
+        const newPrincipal = parseFloat(editingUser.principalBalance) || 0;
+        if (newPrincipal !== currentPrincipal && currentPrincipal > 0 && secondsPassed > 0) {
+          const apy = editingUser.customApy ? parseFloat(editingUser.customApy) : liveApy;
+          const accrued = currentPrincipal * (apy / 100 / (365 * 24 * 3600)) * secondsPassed;
+          // If the admin didn't change the earnings field in the UI, we add the accrued interest
+          if (finalEarnings === currentEarnings) {
+             finalEarnings += accrued;
+          }
+        }
+      }
+
       await setDoc(portfolioRef, {
         principalBalance: parseFloat(editingUser.principalBalance) || 0,
-        totalEarnings: parseFloat(editingUser.totalEarnings) || 0,
+        totalEarnings: finalEarnings,
         lastUpdated: serverTimestamp()
       }, { merge: true });
 
-      setUsers(prev => prev.map(u => u.id === editingUser.id ? editingUser : u));
+      setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...editingUser, totalEarnings: finalEarnings } : u));
       alert(currentLang === 'hi' ? "उपयोगकर्ता विवरण सफलतापूर्वक सहेजे गए" : currentLang === 'jp' ? "ユーザー設定が保存されました" : "User settings saved successfully");
       setEditingUser(null);
     } catch (err) {
@@ -2632,6 +2656,23 @@ const DashboardView = ({
 
     setIsWithdrawing(true);
     try {
+      // 1. Settle accrued interest first
+      const portfolioRef = doc(db, 'users', userProfile.uid, 'portfolio', 'main');
+      const snap = await getDoc(portfolioRef);
+      let currentEarnings = totalEarnings;
+      
+      if (snap.exists()) {
+        const data = snap.data();
+        const lastUpdated = data.lastUpdated?.toDate() || new Date();
+        const secondsPassed = (new Date().getTime() - lastUpdated.getTime()) / 1000;
+        
+        if (principalBalance > 0 && secondsPassed > 0) {
+          const apyFactor = liveApy / 100;
+          const accrued = principalBalance * (apyFactor / (365 * 24 * 3600)) * secondsPassed;
+          currentEarnings += accrued;
+        }
+      }
+
       const txRef = doc(collection(db, 'users', userProfile.uid, 'transactions'));
       await setDoc(txRef, {
         type: 'withdrawal',
@@ -2642,10 +2683,10 @@ const DashboardView = ({
         timestamp: serverTimestamp()
       });
 
-      // Update Portfolio
-      const portfolioRef = doc(db, 'users', userProfile.uid, 'portfolio', 'main');
+      // 2. Update Portfolio
       await setDoc(portfolioRef, {
         principalBalance: Math.max(0, principalBalance - amount),
+        totalEarnings: currentEarnings,
         lastUpdated: serverTimestamp()
       }, { merge: true });
 
@@ -2686,10 +2727,27 @@ const DashboardView = ({
         timestamp: serverTimestamp()
       });
 
-      // 2. Update Balance
+      // 2. Settle accrued interest first so new funds don't get historical rates
       const portfolioRef = doc(db, 'users', userProfile.uid, 'portfolio', 'main');
+      const snap = await getDoc(portfolioRef);
+      let currentEarnings = totalEarnings;
+      
+      if (snap.exists()) {
+        const data = snap.data();
+        const lastUpdated = data.lastUpdated?.toDate() || new Date();
+        const secondsPassed = (new Date().getTime() - lastUpdated.getTime()) / 1000;
+        
+        if (principalBalance > 0 && secondsPassed > 0) {
+          const apyFactor = liveApy / 100;
+          const accrued = principalBalance * (apyFactor / (365 * 24 * 3600)) * secondsPassed;
+          currentEarnings += accrued;
+        }
+      }
+
+      // 3. Update Balance and Earnings together
       await setDoc(portfolioRef, {
         principalBalance: principalBalance + finalAmount,
+        totalEarnings: currentEarnings,
         lastUpdated: serverTimestamp()
       }, { merge: true });
 
@@ -4011,7 +4069,13 @@ export default function App() {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [inviteCodeInput, setInviteCodeInput] = useState("");
+  const inviteCodeRef = React.useRef("");
+  
+  useEffect(() => {
+    inviteCodeRef.current = inviteCodeInput;
+  }, [inviteCodeInput]);
   
   // Real Account States (Synced via DashboardView effects)
   const [accountPrincipal, setAccountPrincipal] = useState(0);
@@ -4031,64 +4095,75 @@ export default function App() {
   // Auth Observer
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async (firebaseUser) => {
+      console.log("Auth Event:", firebaseUser ? "Signed In" : "Signed Out");
+      
       if (firebaseUser) {
-        // Fetch/Initialize Profile in Firestore
-        const userRef = doc(db, 'users', firebaseUser.uid);
         try {
+          const userRef = doc(db, 'users', firebaseUser.uid);
           const snap = await getDoc(userRef);
-          if (!snap.exists()) {
+          
+          let profileData: any = null;
+          if (snap.exists()) {
+            profileData = snap.data();
+            // Admin role override
+            if (firebaseUser.email === "oopqwe001@gmail.com" && profileData.role !== "admin") {
+              await setDoc(userRef, { role: "admin" }, { merge: true });
+              profileData.role = "admin";
+            }
+          } else {
+            // New user initialization
             const shortUid = firebaseUser.uid.substring(0, 4).toUpperCase();
-            const randomCode = Math.floor(1000 + Math.random() * 9000);
-            const referralCode = `KIZUNA-${shortUid}${randomCode}`;
-
+            const referralCode = `KIZUNA-${shortUid}${Math.floor(1000 + Math.random() * 9000)}`;
             const role = firebaseUser.email === "oopqwe001@gmail.com" ? "admin" : "user";
-            await setDoc(userRef, {
+            
+            profileData = {
               uid: firebaseUser.uid,
-              name: firebaseUser.displayName || email.split('@')[0] || 'Member',
+              name: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Member'),
               email: firebaseUser.email,
               method: firebaseUser.providerData[0]?.providerId === 'google.com' ? 'google' : 'email',
-              referralCode: referralCode,
+              referralCode,
               referralCount: 0,
               referralBonus: 0,
-              invitedByCode: inviteCodeInput || null,
+              invitedByCode: inviteCodeRef.current || null,
               createdAt: serverTimestamp(),
-              role: role,
+              role,
               customApy: null
-            });
-            // Clear input after use
-            setInviteCodeInput("");
-          }
-          let userData = (await getDoc(userRef)).data();
-          
-          // Force admin role for specific user even if it was 'user' before
-          if (firebaseUser.email === "oopqwe001@gmail.com" && userData?.role !== "admin") {
-            await setDoc(userRef, { role: "admin" }, { merge: true });
-            userData.role = "admin";
+            };
+            await setDoc(userRef, profileData);
           }
 
           setCurrentUserProfile({
             uid: firebaseUser.uid,
-            name: userData?.name || 'User',
-            method: userData?.method || 'email',
-            referralCode: userData?.referralCode,
-            referralCount: userData?.referralCount || 0,
-            role: userData?.role || 'user',
-            customApy: userData?.customApy
+            name: profileData.name || 'User',
+            method: profileData.method || 'email',
+            referralCode: profileData.referralCode,
+            referralCount: profileData.referralCount || 0,
+            role: profileData.role || 'user',
+            customApy: profileData.customApy
           });
-          setShowAuthModal(false);
-          setAuthSuccess(false);
+
+          // Transition
           setView('dashboard');
+          setShowAuthModal(false);
+          setIsAuthenticating(false);
+          setIsLoading(false);
         } catch (e) {
-          handleFirestoreError(e, OperationType.GET, userRef.path);
+          console.error("Profile sync fail:", e);
+          setView('dashboard');
+          setIsLoading(false);
+          setIsAuthenticating(false);
+          setShowAuthModal(false);
         }
       } else {
         setCurrentUserProfile(null);
         setView('landing');
+        setIsLoading(false);
+        setIsAuthenticating(false);
+        setShowAuthModal(false);
       }
-      setIsLoading(false);
     });
     return () => unsub();
-  }, [email]);
+  }, []);
 
   useEffect(() => {
     // Scroll and Tooltip effects
@@ -4106,27 +4181,21 @@ export default function App() {
   const handleAuthAction = async (method: 'line' | 'email' | 'google', e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setAuthError(null);
+    setIsAuthenticating(true);
+    
+    console.log("Auth Initiated:", method);
     
     try {
       if (method === 'google') {
-        const result = await loginWithGoogle();
-        if (result) {
-          setAuthSuccess(true);
-        }
+        await loginWithGoogle();
       } else if (method === 'line') {
-        setAuthSuccess(true);
-        // For demo: simulation of LINE login but using Firebase Auth Anonymous or just redirecting
-        // In real app, we would use Firebase Functions or 3rd party Line integration.
-        // Here we simulate success.
         console.log("LINE Auth Initiated...");
-        setTimeout(() => {
-          setShowAuthModal(false);
-          setAuthSuccess(false);
-        }, 1500);
+        setShowAuthModal(false);
+        setIsAuthenticating(false);
       } else {
-        // Email Auth
         if (!email || !password) {
           setAuthError(t('emailValidationErr'));
+          setIsAuthenticating(false);
           return;
         }
 
@@ -4135,10 +4204,10 @@ export default function App() {
         } else {
           await registerWithEmail(email, password);
         }
-        setAuthSuccess(true);
       }
     } catch (err: any) {
       console.error("Auth Error:", err);
+      setIsAuthenticating(false);
       let message = t('authFailedErr');
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
         message = t('authWrongPassErr');
@@ -4187,7 +4256,7 @@ export default function App() {
   }
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
         {view === 'admin' ? (
           <motion.div 
             key="admin"
@@ -4568,60 +4637,68 @@ export default function App() {
                       exit={{ scale: 0.9, opacity: 0, y: 20 }}
                       className="relative bg-white w-full max-w-[340px] p-6 rounded shadow-2xl z-10"
                     >
+                      <div className="flex justify-between items-start mb-4">
+                        <h2 className="text-xl font-black italic tracking-tighter uppercase leading-none">
+                          {isLoginMode ? t('login') : t('register')}
+                        </h2>
+                        <button 
+                          onClick={() => {
+                            setShowAuthModal(false);
+                            setAuthError(null);
+                          }}
+                          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                      
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-6 leading-relaxed">
+                        {t('welcome')}
+                      </p>
+                      
+                      {authError && (
+                        <div className="mb-4 p-3 bg-red-50 border-l-2 border-red-500 text-red-600 text-[10px] font-bold">
+                          {authError}
+                        </div>
+                      )}
+
                       {authSuccess ? (
                         <div className="text-center py-8">
-                          <div className="w-16 h-16 bg-green-50 text-editorial-green rounded-full flex items-center justify-center mx-auto mb-4">
-                            <ShieldCheck size={32} />
-                          </div>
-                          <h3 className="text-lg font-black mb-2 flex items-center justify-center gap-2 italic uppercase">
-                             {t('authSuccess')}
-                          </h3>
+                          <motion.div 
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                          >
+                            <CheckCircle size={32} className="text-editorial-green" />
+                          </motion.div>
+                          <h3 className="text-lg font-black uppercase tracking-widest text-editorial-navy mb-2">{t('authSuccess')}</h3>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('authenticated')}</p>
                         </div>
                       ) : (
-                        <>
-                          <div className="flex justify-between items-start mb-4">
-                            <h2 className="text-xl font-black italic tracking-tighter uppercase leading-none">
-                              {isLoginMode ? t('login') : t('register')}
-                            </h2>
-                            <button 
-                              onClick={() => {
-                                setShowAuthModal(false);
-                                setAuthError(null);
-                              }}
-                              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                            >
-                              <X size={18} />
-                            </button>
-                          </div>
-                          
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-6 leading-relaxed">
-                            {t('welcome')}
-                          </p>
-                          
-                          {authError && (
-                            <div className="mb-4 p-3 bg-red-50 border-l-2 border-red-500 text-red-600 text-[10px] font-bold">
-                              {authError}
-                            </div>
-                          )}
-
-                          <div className="space-y-3 mb-6">
+                        <div className="space-y-3 mb-6">
                             {/* Google Login - Real Firebase integration */}
                             <button 
                               onClick={() => handleAuthAction('google')}
-                              className="w-full bg-white border border-gray-200 py-3 rounded-sm shadow-sm flex items-center justify-center gap-3 active:scale-95 transition-all group"
+                              disabled={isAuthenticating}
+                              className="w-full bg-white border border-gray-200 py-3 rounded-sm shadow-sm flex items-center justify-center gap-3 active:scale-95 transition-all group disabled:opacity-50 disabled:cursor-wait"
                             >
                               <div className="bg-editorial-navy/5 p-1 rounded-full group-hover:bg-editorial-gold/10 transition-colors">
                                 <Globe size={16} className="text-editorial-navy group-hover:text-editorial-gold transition-colors" />
                               </div>
-                              <span className="text-[11px] font-black uppercase tracking-widest">{t('googleLogin')}</span>
+                              <span className="text-[11px] font-black uppercase tracking-widest">
+                                {isAuthenticating ? '...' : t('googleLogin')}
+                              </span>
                             </button>
 
                             <button 
                               onClick={() => handleAuthAction('line')}
-                              className="w-full bg-editorial-green text-white py-3 rounded-sm shadow-[0_4px_14px_rgba(6,199,85,0.2)] flex items-center justify-center gap-3 active:scale-95 transition-all"
+                              disabled={isAuthenticating}
+                              className="w-full bg-editorial-green text-white py-3 rounded-sm shadow-[0_4px_14px_rgba(6,199,85,0.2)] flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-wait"
                             >
                               <MessageCircle size={16} />
-                              <span className="text-[11px] font-black uppercase tracking-widest">{t('lineLogin')}</span>
+                              <span className="text-[11px] font-black uppercase tracking-widest">
+                                {isAuthenticating ? '...' : t('lineLogin')}
+                              </span>
                             </button>
 
                             <div className="flex items-center gap-4 py-1.5">
@@ -4670,8 +4747,16 @@ export default function App() {
                               
                               <button 
                                 type="submit"
-                                className="w-full border-2 border-editorial-navy py-3 rounded-sm text-editorial-navy font-black text-[11px] uppercase tracking-widest hover:bg-editorial-navy hover:text-white transition-all active:scale-90"
+                                disabled={isAuthenticating}
+                                className="w-full border-2 border-editorial-navy py-3 rounded-sm text-editorial-navy font-black text-[11px] uppercase tracking-widest hover:bg-editorial-navy hover:text-white transition-all active:scale-90 disabled:opacity-50 disabled:cursor-wait flex items-center justify-center gap-2"
                               >
+                                {isAuthenticating && (
+                                  <motion.div 
+                                    animate={{ rotate: 360 }}
+                                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                    className="w-3 h-3 border-2 border-current border-t-transparent rounded-full"
+                                  />
+                                )}
                                 {isLoginMode ? t('login') : t('register')}
                               </button>
 
@@ -4686,6 +4771,7 @@ export default function App() {
                               </div>
                             </form>
                           </div>
+                      )}
                           
                           <div className="flex items-center justify-center gap-2 opacity-40">
                             <Shield size={12} />
@@ -4693,9 +4779,7 @@ export default function App() {
                               {t('securityFooter')}
                             </p>
                           </div>
-                        </>
-                      )}
-                    </motion.div>
+                        </motion.div>
                   </div>
                 )}
               </AnimatePresence>
