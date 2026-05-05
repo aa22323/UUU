@@ -142,7 +142,7 @@ const TRANSLATIONS: Record<string, any> = {
     lineInvite: "LINEで友だちを招待",
     inviteSuccessList: "招待成功リスト",
     totalReward: "合計報酬",
-    faqBankQ: "なぜ日本の銀行より利息が高いのですか？",
+    faqBankQ: "なぜ銀行より利息が高いのですか？",
     faqBankA: "従来の銀行が抱える膨大な店舗維持費や人件費を、スマートコントラクトによってゼロに削減したからです。",
     faqRiskQ: "資金が引き出せなくなるリスクはありませんか？",
     faqRiskA: "当プラットフォームは「非預託型」を採用しており、資金は世界最大のDeFiプロトコル「Aave」に預けられます。",
@@ -386,7 +386,7 @@ const TRANSLATIONS: Record<string, any> = {
     lineInvite: "Invite via LINE",
     inviteSuccessList: "Success List",
     totalReward: "Total Reward",
-    faqBankQ: "Why is the yield higher than Japanese banks?",
+    faqBankQ: "Why is the yield higher than banks?",
     faqBankA: "By using smart contracts, we eliminate the huge maintenance and labor costs of traditional banks.",
     faqRiskQ: "Is there a risk of not being able to withdraw?",
     faqRiskA: "We use a non-custodial model. Assets are held in Aave, the world's largest DeFi protocol.",
@@ -724,7 +724,7 @@ const TRANSLATIONS: Record<string, any> = {
     lineInvite: "一键分享至 LINE",
     inviteSuccessList: "成功邀请名单",
     totalReward: "累计获得奖励",
-    faqBankQ: "为什么收益比日本银行高得多？",
+    faqBankQ: "为什么收益比银行高？",
     faqBankA: "通过智能合约自动化，我们消除了传统银行巨额的网店维护和人力成本。",
     faqRiskQ: "是否存在无法提现的风险？",
     faqRiskA: "我们采用非托管模式，资产存放在全球最大的 DeFi 协议 Aave 中。",
@@ -921,7 +921,7 @@ const TRANSLATIONS: Record<string, any> = {
     lineInvite: "一鍵分享至 LINE",
     inviteSuccessList: "成功邀請名單",
     totalReward: "累計獲得獎勵",
-    faqBankQ: "為什麼收益比日本銀行高得多？",
+    faqBankQ: "為什麼收益比銀行高？",
     faqBankA: "通過智能合約自動化，我們消除了傳統銀行巨額的網店維護和人力成本。",
     faqRiskQ: "是否存在無法提現的風險？",
     faqRiskA: "我們採用非託管模式，資產存放在全球最大的 DeFi 協議 Aave 中。",
@@ -1044,7 +1044,7 @@ const TRANSLATIONS: Record<string, any> = {
     lineInvite: "LINE으로 친구 초대",
     inviteSuccessList: "초대 성공 리스트",
     totalReward: "합계 보상",
-    faqBankQ: "왜 일본 은행보다 이율이 높나요?",
+    faqBankQ: "왜 은행보다 이율이 높나요?",
     faqBankA: "기존 은행이 부담하는 막대한 점포 유지비와 인건비를 스마트 컨트랙트를 통해 제로로 줄였기 때문입니다.",
     faqRiskQ: "자금을 인출할 수 없게 될 리스크는 없나요?",
     faqRiskA: "당사 플랫폼은 '비수탁형'을 채택하여 자금은 세계 최대 DeFi 프로토콜인 'Aave'에 예치됩니다.",
@@ -1235,7 +1235,7 @@ const TRANSLATIONS: Record<string, any> = {
     lineInvite: "Пригласить через LINE",
     inviteSuccessList: "Список успешных приглашений",
     totalReward: "Общая награда",
-    faqBankQ: "Почему доходность выше, чем в японских банках?",
+    faqBankQ: "Почему доходность выше, чем в банках?",
     faqBankA: "Используя смарт-контракты, мы устраняем огромные расходы на содержание и рабочую силу традиционных банков.",
     faqRiskQ: "Существует ли риск невозможности вывода средств?",
     faqRiskA: "Мы используем модель без хранения. Активы хранятся в Aave, крупнейшем в мире протоколе DeFi.",
@@ -1515,7 +1515,7 @@ const StepItem = ({ num, title, description }: { num: number, title: string, des
   </div>
 );
 
-const FAQItem = ({ q, a }: { q: string, a: string }) => {
+const FAQItem = ({ q, a }: { q: string, a: string, key?: any }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="border-b border-editorial-border py-4 last:border-0">
@@ -1640,11 +1640,13 @@ const AdminUserBalance = ({ user, type, defaultApy }: { user: any, type: 'princi
 const AdminPanelView = ({ 
   onBack, 
   currentLang,
-  liveApy
+  liveApy,
+  sysSettings
 }: { 
   onBack: () => void, 
   currentLang: string,
-  liveApy: number
+  liveApy: number,
+  sysSettings: any
 }) => {
   const t = (key: string, params?: Record<string, any>) => {
     let text = TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS.en[key] || key;
@@ -1668,7 +1670,11 @@ const AdminPanelView = ({
     qrCodeTrc20: "",
     depositWalletErc20: "",
     qrCodeErc20: "",
-    adminSecretCode: "888888"
+    adminSecretCode: "888888",
+    faqs: [],
+    welcomeTitle: "",
+    repName: "",
+    repDesc: ""
   });
   const [isLoading, setIsLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<any>(null);
@@ -1972,6 +1978,7 @@ const AdminPanelView = ({
     { id: 'members', label: t('memberManagement'), icon: Users, badge: 0 },
     { id: 'info', label: t('infoLabel', { fallback: 'News' }), icon: Newspaper, badge: 0 },
     { id: 'settings', label: t('systemSettings'), icon: Settings, badge: 0 },
+    { id: 'cms', label: t('contentMgmtSystem'), icon: Edit, badge: 0 },
   ];
 
   return (
@@ -2389,6 +2396,124 @@ const AdminPanelView = ({
           </div>
         )}
 
+        {/* CMS / Content Management */}
+        {activeSubView === 'cms' && (
+          <div className="space-y-8 max-w-4xl">
+            {/* Landing Message Section */}
+            <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+              <h3 className="text-sm font-black uppercase tracking-widest mb-6">{t('repLabel')}</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Welcome Title / Message</label>
+                  <textarea 
+                    value={systemSettings.welcomeTitle}
+                    onChange={e => setSystemSettings({...systemSettings, welcomeTitle: e.target.value})}
+                    className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold min-h-[100px]"
+                    placeholder={t('welcomeTitle')}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Representative Name</label>
+                    <input 
+                      type="text"
+                      value={systemSettings.repName}
+                      onChange={e => setSystemSettings({...systemSettings, repName: e.target.value})}
+                      className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold"
+                      placeholder={t('representative')}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Representative Description</label>
+                    <input 
+                      type="text"
+                      value={systemSettings.repDesc}
+                      onChange={e => setSystemSettings({...systemSettings, repDesc: e.target.value})}
+                      className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold"
+                      placeholder={t('repDesc')}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-sm font-black uppercase tracking-widest">{t('faqLabel')}</h3>
+                <button 
+                  onClick={() => setSystemSettings({
+                    ...systemSettings,
+                    faqs: [...(systemSettings.faqs || []), { q: "", a: "" }]
+                  })}
+                  className="bg-black text-white text-[10px] font-black px-4 py-2 rounded-lg uppercase tracking-widest flex items-center gap-2"
+                >
+                  <Plus size={14} /> Add FAQ
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {systemSettings.faqs?.map((faq: any, idx: number) => (
+                  <div key={idx} className="p-6 bg-gray-50 rounded-2xl relative border border-gray-100">
+                    <button 
+                      onClick={() => {
+                        const newFaqs = [...systemSettings.faqs];
+                        newFaqs.splice(idx, 1);
+                        setSystemSettings({ ...systemSettings, faqs: newFaqs });
+                      }}
+                      className="absolute top-4 right-4 text-gray-400 hover:text-red-500"
+                    >
+                      <X size={16} />
+                    </button>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Question ({idx + 1})</label>
+                        <input 
+                          type="text"
+                          value={faq.q}
+                          onChange={e => {
+                            const newFaqs = [...systemSettings.faqs];
+                            newFaqs[idx].q = e.target.value;
+                            setSystemSettings({ ...systemSettings, faqs: newFaqs });
+                          }}
+                          className="w-full bg-white border border-gray-200 p-4 rounded-xl text-xs font-bold"
+                          placeholder="Why is JPY yield low?"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Answer ({idx + 1})</label>
+                        <textarea 
+                          value={faq.a}
+                          onChange={e => {
+                            const newFaqs = [...systemSettings.faqs];
+                            newFaqs[idx].a = e.target.value;
+                            setSystemSettings({ ...systemSettings, faqs: newFaqs });
+                          }}
+                          className="w-full bg-white border border-gray-200 p-4 rounded-xl text-xs font-bold min-h-[100px]"
+                          placeholder="Because interest rates in Japan are near zero..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {(!systemSettings.faqs || systemSettings.faqs.length === 0) && (
+                  <div className="text-center py-10 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-gray-400 text-xs font-bold italic">
+                    No custom FAQs defined. Default translations will be used.
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-8 pt-8 border-t">
+                <button 
+                  onClick={handleSaveSettings}
+                  className="w-full bg-editorial-navy text-white font-black py-4 rounded-xl text-[10px] uppercase tracking-[0.3em] active:scale-95 transition-all shadow-lg shadow-editorial-navy/10"
+                >
+                  SAVE HOME CONTENT
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Placeholders for unfinished views */}
         {(activeSubView === 'products' || activeSubView === 'info') && (
           <div className="flex flex-col items-center justify-center py-40 bg-white rounded-3xl border-2 border-dashed border-gray-100 p-10 text-center">
@@ -2465,7 +2590,8 @@ const DashboardView = ({
   liveApy, 
   onAccountUpdate,
   currentLang,
-  onLangChange
+  onLangChange,
+  sysSettings
 }: { 
   onBack: () => void, 
   onLogout: () => void,
@@ -2474,7 +2600,8 @@ const DashboardView = ({
   liveApy: number, 
   onAccountUpdate: (principal: number, earnings: number) => void,
   currentLang: string,
-  onLangChange: (code: string) => void
+  onLangChange: (code: string) => void,
+  sysSettings: any
 }) => {
   const t = (key: string, params?: Record<string, any>) => {
     let text = TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS.en[key] || key;
@@ -2518,26 +2645,6 @@ const DashboardView = ({
   const [referrals, setReferrals] = useState<any[]>([]);
   const [referralCount, setReferralCount] = useState(0);
   const [totalReferralBonusAmount, setTotalReferralBonusAmount] = useState(0);
-
-  const [sysSettings, setSysSettings] = useState({
-    customerServiceUrl: "",
-    customerServiceQr: "",
-    depositWalletTrc20: "TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    qrCodeTrc20: "",
-    depositWalletErc20: "0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    qrCodeErc20: "",
-    adminSecretCode: "888888"
-  });
-
-  useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'settings', 'system'), (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        setSysSettings(prev => ({ ...prev, ...data }));
-      }
-    });
-    return () => unsub();
-  }, []);
 
   useEffect(() => {
     if (!userProfile?.uid) return;
@@ -4316,6 +4423,30 @@ export default function App() {
     firebaseLogout();
   };
 
+  const [sysSettings, setSysSettings] = useState({
+    customerServiceUrl: "",
+    customerServiceQr: "",
+    depositWalletTrc20: "TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    qrCodeTrc20: "",
+    depositWalletErc20: "0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    qrCodeErc20: "",
+    adminSecretCode: "888888",
+    faqs: [] as { q: string, a: string }[],
+    welcomeTitle: "",
+    repName: "",
+    repDesc: ""
+  });
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'system'), (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        setSysSettings(prev => ({ ...prev, ...data }));
+      }
+    });
+    return () => unsub();
+  }, []);
+
   const calculateYield = (amount: number, apy: number) => {
     // Current live yield for annual
     const annual = amount * (apy / 100);
@@ -4358,6 +4489,7 @@ export default function App() {
               onBack={() => setView('dashboard')}
               currentLang={currentLang}
               liveApy={liveApy}
+              sysSettings={sysSettings}
             />
           </motion.div>
         ) : view === 'dashboard' ? (
@@ -4381,6 +4513,7 @@ export default function App() {
               }}
               currentLang={currentLang}
               onLangChange={setCurrentLang}
+              sysSettings={sysSettings}
             />
           </motion.div>
         ) : (
@@ -4607,12 +4740,12 @@ export default function App() {
             <div className={`${isDetailsOpen ? 'block' : 'hidden'} md:block mt-8 md:mt-2 animate-in fade-in slide-in-from-top-4 duration-500`}>
               <SectionLabel>{t('repLabel')}</SectionLabel>
               <div className="bg-editorial-white border-l-4 border-editorial-navy p-6 italic relative mb-4 md:mb-0">
-                <p className="text-sm text-editorial-navy leading-loose mb-6 relative z-10">
-                  {t('welcomeTitle')}
+                <p className="text-sm text-editorial-navy leading-loose mb-6 relative z-10 whitespace-pre-line">
+                  {sysSettings.welcomeTitle || t('welcomeTitle')}
                 </p>
                 <div className="text-right">
                   <p className="text-[10px] md:text-xs font-bold text-editorial-navy italic">
-                    {t('representative')} <span className="font-normal opacity-60 ml-1">{t('repDesc')}</span>
+                    {sysSettings.repName || t('representative')} <span className="font-normal opacity-60 ml-1">{sysSettings.repDesc || t('repDesc')}</span>
                   </p>
                 </div>
               </div>
@@ -4650,18 +4783,30 @@ export default function App() {
           <div className="mb-10 md:mb-12">
             <SectionLabel>{t('faqLabel')}</SectionLabel>
             <div className="border-t border-editorial-border">
-              <FAQItem 
-                q={t('faqBankQ')}
-                a={t('faqBankA')}
-              />
-              <FAQItem 
-                q={t('faqRiskQ')}
-                a={t('faqRiskA')}
-              />
-              <FAQItem 
-                q={t('faqPlatformQ')}
-                a={t('faqPlatformA')}
-              />
+              {sysSettings.faqs && sysSettings.faqs.length > 0 ? (
+                sysSettings.faqs.map((faq, i) => (
+                  <FAQItem 
+                    key={i}
+                    q={faq.q}
+                    a={faq.a}
+                  />
+                ))
+              ) : (
+                <>
+                  <FAQItem 
+                    q={t('faqBankQ')}
+                    a={t('faqBankA')}
+                  />
+                  <FAQItem 
+                    q={t('faqRiskQ')}
+                    a={t('faqRiskA')}
+                  />
+                  <FAQItem 
+                    q={t('faqPlatformQ')}
+                    a={t('faqPlatformA')}
+                  />
+                </>
+              )}
             </div>
           </div>
 
