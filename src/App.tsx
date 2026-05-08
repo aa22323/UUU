@@ -1716,33 +1716,34 @@ const AdminPanelView = ({
               if (secondsPassed >= 86400) {
                 const daysPassed = Math.floor(secondsPassed / 86400);
                 const apy = (userObj as any).customApy || liveApy;
-                const dailyProfit = userObj.principalBalance * (apy / 100 / 365);
-                const totalNewEarnings = dailyProfit * daysPassed;
+                
+                let currentTotalEarnings = userObj.totalEarnings || 0;
+                const batch = writeBatch(db);
+                const portfolioRef = doc(db, 'users', uDoc.id, 'portfolio', 'main');
 
-                 if (totalNewEarnings > 0) {
-                   const portfolioRef = doc(db, 'users', uDoc.id, 'portfolio', 'main');
-                   const batch = writeBatch(db);
-                   
-                   batch.set(portfolioRef, {
-                     totalEarnings: (userObj.totalEarnings || 0) + totalNewEarnings,
-                     lastUpdated: serverTimestamp()
-                   }, { merge: true });
+                for (let i = 0; i < daysPassed; i++) {
+                  // COMPOUNDING: (Principal + CURRENT Earnings) * daily_rate
+                  const dailyProfit = (userObj.principalBalance + currentTotalEarnings) * (apy / 100 / 365);
+                  currentTotalEarnings += dailyProfit;
 
-                   for (let i = 0; i < daysPassed; i++) {
-                     const recRef = doc(collection(db, 'users', uDoc.id, 'portfolio', 'main', 'earnings'));
-                     batch.set(recRef, {
-                       amount: dailyProfit,
-                       type: 'daily_yield',
-                       timestamp: serverTimestamp(),
-                       description: `Admin Auto-Settlement (${userObj.principalBalance.toLocaleString()} USDT @ ${apy}%)`
-                     });
-                   }
-                   
-                   batch.commit().catch(e => console.error("Admin auto-settle error:", e));
-                   
-                   // Update locally to avoid flicker
-                   userObj.totalEarnings += totalNewEarnings;
-                 }
+                  const recRef = doc(collection(db, 'users', uDoc.id, 'portfolio', 'main', 'earnings'));
+                  batch.set(recRef, {
+                    amount: dailyProfit,
+                    type: 'daily_yield',
+                    timestamp: serverTimestamp(),
+                    description: `Admin Auto-Settlement (${(userObj.principalBalance + (currentTotalEarnings - dailyProfit)).toLocaleString()} USDT @ ${apy}%)`
+                  });
+                }
+                
+                batch.set(portfolioRef, {
+                  totalEarnings: currentTotalEarnings,
+                  lastUpdated: serverTimestamp()
+                }, { merge: true });
+
+                batch.commit().catch(e => console.error("Admin auto-settle error:", e));
+                
+                // Update locally to avoid flicker
+                userObj.totalEarnings = currentTotalEarnings;
               }
             }
 
@@ -1878,7 +1879,8 @@ const AdminPanelView = ({
         // This ensures the "100 from today" logic works
         if (currentPrincipal > 0 && secondsPassed > 0) {
           const apy = editingUser.customApy ? parseFloat(editingUser.customApy.toString()) : liveApy;
-          const accrued = currentPrincipal * (apy / 100 / (365 * 24 * 3600)) * secondsPassed;
+          // COMPOUNDING: Use (Principal + Earnings) for the base
+          const accrued = (currentPrincipal + currentEarnings) * (apy / 100 / (365 * 24 * 3600)) * secondsPassed;
           
           // If the user didn't manually tweak the earnings field in the UI (approximate due to float precision)
           const earningsModified = Math.abs(earningsInInput - currentEarnings) > 0.000001;
@@ -2697,34 +2699,32 @@ const DashboardView = ({
         // Settlement interval: 24 hours (86400 seconds)
         if (principal > 0 && secondsPassed >= 86400) {
           const daysPassed = Math.floor(secondsPassed / 86400);
-          const dailyProfit = principal * (liveApy / 100 / 365);
-          const totalNewEarnings = dailyProfit * daysPassed;
-          
-          if (totalNewEarnings > 0) {
-            try {
-              const batch = writeBatch(db);
-              
-              // 1. Update Portfolio
-              batch.set(portfolioRef, {
-                totalEarnings: earnings + totalNewEarnings,
-                lastUpdated: serverTimestamp()
-              }, { merge: true });
+          const batch = writeBatch(db);
+          let currentE = earnings;
 
-              // 2. Add History Records (one for each day passed)
-              for (let i = 0; i < daysPassed; i++) {
-                const recordRef = doc(collection(db, 'users', userProfile!.uid, 'portfolio', 'main', 'earnings'));
-                batch.set(recordRef, {
-                  amount: dailyProfit,
-                  type: 'daily_yield',
-                  timestamp: serverTimestamp(), // In real app, this should be the end of that specific day
-                  description: `Daily Interest Settlement (${principal.toLocaleString()} USDT @ ${liveApy}%)`
-                });
-              }
+          for (let i = 0; i < daysPassed; i++) {
+            // COMPOUNDING: Interest on (Principal + Previous Earnings)
+            const dailyProfit = (principal + currentE) * (liveApy / 100 / 365);
+            currentE += dailyProfit;
 
-              await batch.commit();
-            } catch (err) {
-              console.error("Auto Settlement Error:", err);
-            }
+            const recordRef = doc(collection(db, 'users', userProfile!.uid, 'portfolio', 'main', 'earnings'));
+            batch.set(recordRef, {
+              amount: dailyProfit,
+              type: 'daily_yield',
+              timestamp: serverTimestamp(),
+              description: `Daily interest settlement with compounding (${(principal + (currentE - dailyProfit)).toLocaleString()} USDT @ ${liveApy}%)`
+            });
+          }
+
+          try {
+            batch.set(portfolioRef, {
+              totalEarnings: currentE,
+              lastUpdated: serverTimestamp()
+            }, { merge: true });
+
+            await batch.commit();
+          } catch (err) {
+            console.error("Auto Settlement Error:", err);
           }
         }
 
@@ -2827,14 +2827,14 @@ const DashboardView = ({
       const now = new Date();
       const secondsSinceSettle = (now.getTime() - lastSettlementTime.getTime()) / 1000;
       const apyFactor = liveApy / 100;
-      // Discrete per-second compounding approximation
-      return principalBalance * (apyFactor / (365 * 24 * 3600)) * Math.max(0, secondsSinceSettle);
+      // Compounding baseline: Principal + Settled Earnings
+      return (principalBalance + totalEarnings) * (apyFactor / (365 * 24 * 3600)) * Math.max(0, secondsSinceSettle);
     };
 
     setAccruedSinceSettlement(calculatePending());
 
     const apyFactor = liveApy / 100;
-    const incrementPerSecond = (principalBalance * apyFactor) / (365 * 24 * 3600);
+    const incrementPerSecond = ((principalBalance + totalEarnings) * apyFactor) / (365 * 24 * 3600);
     
     const timer = setInterval(() => {
       setAccruedSinceSettlement(prev => prev + incrementPerSecond);
