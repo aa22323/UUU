@@ -142,7 +142,7 @@ const TRANSLATIONS: Record<string, any> = {
     lineInvite: "LINEで友だちを招待",
     inviteSuccessList: "招待成功リスト",
     totalReward: "合計報酬",
-    faqBankQ: "なぜ日本の銀行より利息が高いのですか？",
+    faqBankQ: "なぜ銀行より利息が高いのですか？",
     faqBankA: "従来の銀行が抱える膨大な店舗維持費や人件費を、スマートコントラクトによってゼロに削減したからです。",
     faqRiskQ: "資金が引き出せなくなるリスクはありませんか？",
     faqRiskA: "当プラットフォームは「非預託型」を採用しており、資金は世界最大のDeFiプロトコル「Aave」に預けられます。",
@@ -386,7 +386,7 @@ const TRANSLATIONS: Record<string, any> = {
     lineInvite: "Invite via LINE",
     inviteSuccessList: "Success List",
     totalReward: "Total Reward",
-    faqBankQ: "Why is the yield higher than Japanese banks?",
+    faqBankQ: "Why is the yield higher than banks?",
     faqBankA: "By using smart contracts, we eliminate the huge maintenance and labor costs of traditional banks.",
     faqRiskQ: "Is there a risk of not being able to withdraw?",
     faqRiskA: "We use a non-custodial model. Assets are held in Aave, the world's largest DeFi protocol.",
@@ -568,7 +568,10 @@ const TRANSLATIONS: Record<string, any> = {
     saveChangesBtn: "Save Changes",
     fixedRate: "Fixed",
     sysDefault: "System Default",
-    interestEarningLabel: "Interest Earning",
+    withdrawHistory: "Withdrawal History",
+    statusPending: "Pending",
+    statusCompleted: "Completed",
+    statusFailed: "Rejected",
     initialDepositLabel: "Initial Deposit",
     inviteLineMsg: "【KIZUNA PREP LAB】Protect assets with next-gen USDT yield. Use my invite code for a yield boost!\nInvite Code: {code}\nJoin here: {url}"
   },
@@ -721,7 +724,7 @@ const TRANSLATIONS: Record<string, any> = {
     lineInvite: "一键分享至 LINE",
     inviteSuccessList: "成功邀请名单",
     totalReward: "累计获得奖励",
-    faqBankQ: "为什么收益比日本银行高得多？",
+    faqBankQ: "为什么收益比银行高？",
     faqBankA: "通过智能合约自动化，我们消除了传统银行巨额的网店维护和人力成本。",
     faqRiskQ: "是否存在无法提现的风险？",
     faqRiskA: "我们采用非托管模式，资产存放在全球最大的 DeFi 协议 Aave 中。",
@@ -851,7 +854,10 @@ const TRANSLATIONS: Record<string, any> = {
     saveChangesBtn: "保存修改",
     fixedRate: "固定",
     sysDefault: "系统默认",
-    interestEarningLabel: "利息收益",
+    withdrawHistory: "提现历史",
+    statusPending: "处理中",
+    statusCompleted: "已完成",
+    statusFailed: "已驳回",
     initialDepositLabel: "首次充值",
     inviteLineMsg: "【KIZUNA PREP LAB】通过下一代 USDT 收益保护资产。使用我的邀请码即可提升收益率！\n邀请码：{code}\n点击加入：{url}"
   },
@@ -915,7 +921,7 @@ const TRANSLATIONS: Record<string, any> = {
     lineInvite: "一鍵分享至 LINE",
     inviteSuccessList: "成功邀請名單",
     totalReward: "累計獲得獎勵",
-    faqBankQ: "為什麼收益比日本銀行高得多？",
+    faqBankQ: "為什麼收益比銀行高？",
     faqBankA: "通過智能合約自動化，我們消除了傳統銀行巨額的網店維護和人力成本。",
     faqRiskQ: "是否存在無法提現的風險？",
     faqRiskA: "我們採用非託管模式，資產存放在全球最大的 DeFi 協議 Aave 中。",
@@ -1038,7 +1044,7 @@ const TRANSLATIONS: Record<string, any> = {
     lineInvite: "LINE으로 친구 초대",
     inviteSuccessList: "초대 성공 리스트",
     totalReward: "합계 보상",
-    faqBankQ: "왜 일본 은행보다 이율이 높나요?",
+    faqBankQ: "왜 은행보다 이율이 높나요?",
     faqBankA: "기존 은행이 부담하는 막대한 점포 유지비와 인건비를 스마트 컨트랙트를 통해 제로로 줄였기 때문입니다.",
     faqRiskQ: "자금을 인출할 수 없게 될 리스크는 없나요?",
     faqRiskA: "당사 플랫폼은 '비수탁형'을 채택하여 자금은 세계 최대 DeFi 프로토콜인 'Aave'에 예치됩니다.",
@@ -1229,7 +1235,7 @@ const TRANSLATIONS: Record<string, any> = {
     lineInvite: "Пригласить через LINE",
     inviteSuccessList: "Список успешных приглашений",
     totalReward: "Общая награда",
-    faqBankQ: "Почему доходность выше, чем в японских банках?",
+    faqBankQ: "Почему доходность выше, чем в банках?",
     faqBankA: "Используя смарт-контракты, мы устраняем огромные расходы на содержание и рабочую силу традиционных банков.",
     faqRiskQ: "Существует ли риск невозможности вывода средств?",
     faqRiskA: "Мы используем модель без хранения. Активы хранятся в Aave, крупнейшем в мире протоколе DeFi.",
@@ -1509,7 +1515,7 @@ const StepItem = ({ num, title, description }: { num: number, title: string, des
   </div>
 );
 
-const FAQItem = ({ q, a }: { q: string, a: string }) => {
+const FAQItem = ({ q, a }: { q: string, a: string, key?: any }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="border-b border-editorial-border py-4 last:border-0">
@@ -1587,12 +1593,60 @@ const NumberCounter = ({ value, precision = 2, extraPrecision = 4 }: { value: nu
 /**
  * Admin Panel Component
  */
+/**
+ * Real-time balance component for Admin list
+ */
+const AdminUserBalance = ({ user, type, defaultApy }: { user: any, type: 'principal' | 'earnings', defaultApy: number }) => {
+  const [accrued, setAccrued] = useState(0);
+
+  useEffect(() => {
+    // If user has no principal, nothing to accrue
+    if ((user.principalBalance || 0) <= 0) {
+      setAccrued(0);
+      return;
+    }
+
+    const apy = user.customApy || defaultApy; 
+    const principal = user.principalBalance || 0;
+    
+    // Convert Firestore timestamp to Date
+    const lastSettlement = user.lastSettlementTime?.seconds 
+      ? new Date(user.lastSettlementTime.seconds * 1000) 
+      : new Date();
+
+    const calculate = () => {
+      const now = new Date();
+      const elapsed = (now.getTime() - lastSettlement.getTime()) / 1000;
+      if (elapsed < 0) return 0;
+      // Formula: Daily profit / 24 / 3600 per second
+      return principal * (apy / 100 / 365 / 24 / 3600) * elapsed;
+    };
+
+    setAccrued(calculate());
+    const timer = setInterval(() => {
+      setAccrued(calculate());
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [user.id, user.principalBalance, user.customApy, user.lastSettlementTime, defaultApy]);
+
+  if (type === 'principal') {
+    return <span>${(user.principalBalance || 0).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span>;
+  }
+  
+  return <span className="text-green-600">${(user.totalEarnings + accrued).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span>;
+};
+
 const AdminPanelView = ({ 
   onBack, 
-  currentLang 
+  currentLang,
+  liveApy,
+  sysSettings
 }: { 
   onBack: () => void, 
-  currentLang: string 
+  currentLang: string,
+  liveApy: number,
+  sysSettings: any
 }) => {
   const t = (key: string, params?: Record<string, any>) => {
     let text = TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS.en[key] || key;
@@ -1607,6 +1661,8 @@ const AdminPanelView = ({
   const [activeSubView, setActiveSubView] = useState<'dashboard' | 'products' | 'finance' | 'positions' | 'members' | 'info' | 'settings'>('dashboard');
   const [users, setUsers] = useState<any[]>([]);
   const [pendingTransactions, setPendingTransactions] = useState<any[]>([]);
+  const [financeTab, setFinanceTab] = useState<'pending' | 'history'>('pending');
+  const [allTransactions, setAllTransactions] = useState<any[]>([]);
   const [systemSettings, setSystemSettings] = useState<any>({
     customerServiceUrl: "",
     customerServiceQr: "",
@@ -1614,49 +1670,171 @@ const AdminPanelView = ({
     qrCodeTrc20: "",
     depositWalletErc20: "",
     qrCodeErc20: "",
-    adminSecretCode: "888888"
+    adminSecretCode: "888888",
+    faqs: [],
+    welcomeTitle: "",
+    repName: "",
+    repDesc: ""
   });
   const [isLoading, setIsLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<any>(null);
 
-  // Load Data
+  // Real-time listener for user list
   useEffect(() => {
+    let unsubUsers: (() => void) | null = null;
+    
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const usersSnap = await getDocs(collection(db, 'users'));
-        const userList = await Promise.all(usersSnap.docs.map(async (uDoc) => {
-          const userData = uDoc.data();
-          const portfolioSnap = await getDoc(doc(db, 'users', uDoc.id, 'portfolio', 'main'));
-          const portfolioData = portfolioSnap.exists() ? portfolioSnap.data() : { principalBalance: 0, totalEarnings: 0 };
-          return {
-            id: uDoc.id,
-            ...userData,
-            principalBalance: portfolioData.principalBalance,
-            totalEarnings: portfolioData.totalEarnings
-          };
-        }));
-        setUsers(userList);
-
-        const txQuery = query(collectionGroup(db, 'transactions'), where('status', '==', 'pending'), orderBy('timestamp', 'desc'));
-        const txSnap = await getDocs(txQuery);
-        setPendingTransactions(txSnap.docs.map(doc => ({
-          id: doc.id,
-          userId: doc.ref.parent.parent?.id,
-          ...doc.data()
-        })));
-
         const settingsSnap = await getDoc(doc(db, 'settings', 'system'));
         if (settingsSnap.exists()) {
-          setSystemSettings(settingsSnap.data());
+          setSystemSettings((prev: any) => ({ ...prev, ...settingsSnap.data() }));
         }
+
+        // Real-time listener for user list
+        unsubUsers = onSnapshot(collection(db, 'users'), async (snapshot) => {
+          const userList = await Promise.all(snapshot.docs.map(async (uDoc) => {
+            const userData = uDoc.data();
+            const portfolioSnap = await getDoc(doc(db, 'users', uDoc.id, 'portfolio', 'main'));
+            const portfolioData = portfolioSnap.exists() ? portfolioSnap.data() : { principalBalance: 0, totalEarnings: 0 };
+            
+            const userObj = {
+              ...userData,
+              id: uDoc.id,
+              principalBalance: portfolioData.principalBalance || 0,
+              totalEarnings: portfolioData.totalEarnings || 0,
+              lastSettlementTime: portfolioData.lastUpdated
+            };
+
+            // --- AUTO-SETTLEMENT FOR OFFLINE USERS ---
+            // If admin sees a user who is overdue (24h+), settle for them
+            if (userObj.principalBalance > 0 && userObj.lastSettlementTime) {
+              const lastSettle = (userObj.lastSettlementTime as any).toDate ? (userObj.lastSettlementTime as any).toDate() : new Date((userObj.lastSettlementTime as any).seconds * 1000);
+              const now = new Date();
+              const secondsPassed = (now.getTime() - lastSettle.getTime()) / 1000;
+
+              if (secondsPassed >= 86400) {
+                const daysPassed = Math.floor(secondsPassed / 86400);
+                const apy = (userObj as any).customApy || liveApy;
+                
+                let currentTotalEarnings = userObj.totalEarnings || 0;
+                const batch = writeBatch(db);
+                const portfolioRef = doc(db, 'users', uDoc.id, 'portfolio', 'main');
+
+                for (let i = 0; i < daysPassed; i++) {
+                  // COMPOUNDING: (Principal + CURRENT Earnings) * daily_rate
+                  const dailyProfit = (userObj.principalBalance + currentTotalEarnings) * (apy / 100 / 365);
+                  currentTotalEarnings += dailyProfit;
+
+                  const recRef = doc(collection(db, 'users', uDoc.id, 'portfolio', 'main', 'earnings'));
+                  batch.set(recRef, {
+                    amount: dailyProfit,
+                    type: 'daily_yield',
+                    timestamp: serverTimestamp(),
+                    description: `Admin Auto-Settlement (${(userObj.principalBalance + (currentTotalEarnings - dailyProfit)).toLocaleString()} USDT @ ${apy}%)`
+                  });
+                }
+                
+                batch.set(portfolioRef, {
+                  totalEarnings: currentTotalEarnings,
+                  lastUpdated: serverTimestamp()
+                }, { merge: true });
+
+                batch.commit().catch(e => console.error("Admin auto-settle error:", e));
+                
+                // Update locally to avoid flicker
+                userObj.totalEarnings = currentTotalEarnings;
+              }
+            }
+
+            return userObj;
+          }));
+          setUsers(userList);
+          setIsLoading(false);
+        }, (err) => {
+          console.error("Admin Users Sync Error:", err);
+          setIsLoading(false);
+        });
       } catch (err) {
-        console.error("Admin Load Error:", err);
+        console.error("Admin Initial Load Error:", err);
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     loadData();
+    return () => {
+      if (unsubUsers) unsubUsers();
+    };
+  }, [liveApy]); // Depend on liveApy to ensure calculation is correct
+
+  // Refresh dynamic data like transactions on tab switch
+  useEffect(() => {
+    let unsubs: (() => void)[] = [];
+
+    const setupSync = async () => {
+      try {
+        // Fetch users once to get the list of IDs
+        const usersSnap = await getDocs(collection(db, 'users'));
+        const userList = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // Real-time listener for pending transactions across all users
+        // Since collectionGroup often requires manual index setup, 
+        // we'll listen to each user's transactions if the list is small,
+        // or attempt a simpler collectionGroup.
+        
+        // Let's listen to ALL transactions and filter them
+        const allQ = query(collectionGroup(db, 'transactions'));
+        const unsubAll = onSnapshot(allQ, (snapshot) => {
+          const txs = snapshot.docs.map(doc => {
+            const userId = doc.ref.parent.parent?.id || "";
+            const userData = userList.find(u => u.id === userId) || {};
+            return {
+              id: doc.id,
+              userId: userId,
+              userEmail: (userData as any).email || (userData as any).uid || "Unknown",
+              userName: (userData as any).name || "User",
+              ...doc.data()
+            } as any;
+          }).sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+          setAllTransactions(txs);
+          setPendingTransactions(txs.filter(tx => tx.status === 'pending'));
+        }, (err) => {
+          console.error("Admin All Transactions Error:", err);
+          // Fallback logic if collectionGroup fails
+          if (err.message.includes('index')) {
+            usersSnap.docs.forEach(uDoc => {
+              const uQ = query(collection(db, 'users', uDoc.id, 'transactions'));
+              const uUnsub = onSnapshot(uQ, (uSnap) => {
+                setAllTransactions(prev => {
+                  const filtered = prev.filter(tx => tx.userId !== uDoc.id);
+                  const newTxs = uSnap.docs.map(d => ({
+                    id: d.id,
+                    userId: uDoc.id,
+                    userEmail: uDoc.data().email || uDoc.id,
+                    userName: uDoc.data().name || "User",
+                    ...d.data()
+                  })) as any[];
+                  const updated = [...filtered, ...newTxs].sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+                  setPendingTransactions(updated.filter(tx => tx.status === 'pending'));
+                  return updated;
+                });
+              });
+              unsubs.push(uUnsub);
+            });
+          }
+        });
+        unsubs.push(unsubAll);
+      } catch (err) {
+        console.error("Admin setupSync Error:", err);
+      }
+    };
+
+    if (activeSubView === 'finance' || activeSubView === 'dashboard') {
+      setupSync();
+    }
+
+    return () => unsubs.forEach(u => u());
   }, [activeSubView]);
 
   const handleUpdateTransaction = async (userId: string, txId: string, status: 'completed' | 'failed') => {
@@ -1671,25 +1849,82 @@ const AdminPanelView = ({
 
   const handleSaveUser = async () => {
     if (!editingUser) return;
+    console.log("Saving user:", editingUser.id, editingUser);
+    
     try {
+      // 1. Update Profile Info
       const userRef = doc(db, 'users', editingUser.id);
-      await updateDoc(userRef, {
+      await setDoc(userRef, {
         name: editingUser.name,
-        customApy: editingUser.customApy ? parseFloat(editingUser.customApy) : null,
+        customApy: editingUser.customApy ? parseFloat(editingUser.customApy.toString()) : null,
         role: editingUser.role
-      });
+      }, { merge: true });
       
+      // 2. Settlement & Portfolio Update
       const portfolioRef = doc(db, 'users', editingUser.id, 'portfolio', 'main');
-      await updateDoc(portfolioRef, {
-        principalBalance: parseFloat(editingUser.principalBalance) || 0,
-        totalEarnings: parseFloat(editingUser.totalEarnings) || 0,
-        lastUpdated: serverTimestamp()
-      });
+      const portfolioSnap = await getDoc(portfolioRef);
+      
+      let principalNum = parseFloat(editingUser.principalBalance?.toString()) || 0;
+      let earningsInInput = parseFloat(editingUser.totalEarnings?.toString()) || 0;
+      let finalEarnings = earningsInInput;
+      
+      if (portfolioSnap.exists()) {
+        const pData = portfolioSnap.data();
+        const currentPrincipal = pData.principalBalance || 0;
+        const currentEarnings = pData.totalEarnings || 0;
+        const lastUpdated = pData.lastUpdated?.toDate() || new Date();
+        const secondsPassed = (new Date().getTime() - lastUpdated.getTime()) / 1000;
+        
+        // Settle accrued interest if principal changed OR if long time passed without change
+        // This ensures the "100 from today" logic works
+        if (currentPrincipal > 0 && secondsPassed > 0) {
+          const apy = editingUser.customApy ? parseFloat(editingUser.customApy.toString()) : liveApy;
+          // COMPOUNDING: Use (Principal + Earnings) for the base
+          const accrued = (currentPrincipal + currentEarnings) * (apy / 100 / (365 * 24 * 3600)) * secondsPassed;
+          
+          // If the user didn't manually tweak the earnings field in the UI (approximate due to float precision)
+          const earningsModified = Math.abs(earningsInInput - currentEarnings) > 0.000001;
+          
+          if (!earningsModified) {
+             finalEarnings = currentEarnings + accrued;
+             
+             // Create a settlement record
+             try {
+               const recRef = doc(collection(db, 'users', editingUser.id, 'portfolio', 'main', 'earnings'));
+               await setDoc(recRef, {
+                 amount: accrued,
+                 type: 'adjustment_settle',
+                 timestamp: serverTimestamp(),
+                 description: `Settlement before update (${currentPrincipal.toLocaleString()} -> ${principalNum.toLocaleString()})`
+               });
+             } catch (recErr) {
+               console.warn("Could not create settlement record:", recErr);
+               // Continue anyway as the balance update is more important
+             }
+          }
+        }
+      }
 
-      setUsers(prev => prev.map(u => u.id === editingUser.id ? editingUser : u));
+      await setDoc(portfolioRef, {
+        principalBalance: principalNum,
+        totalEarnings: finalEarnings,
+        lastUpdated: serverTimestamp()
+      }, { merge: true });
+
+      setUsers(prev => prev.map(u => u.id === editingUser.id ? { 
+        ...u, 
+        name: editingUser.name,
+        role: editingUser.role,
+        customApy: editingUser.customApy,
+        principalBalance: principalNum,
+        totalEarnings: finalEarnings 
+      } : u));
+      
+      alert(currentLang === 'hi' ? "उपयोगकर्ता विवरण सफलतापूर्वक सहेजे गए" : currentLang === 'jp' ? "ユーザー設定が保存されました" : "User settings saved successfully");
       setEditingUser(null);
     } catch (err) {
       console.error("Save User Error:", err);
+      alert("Error saving user: " + (err instanceof Error ? err.message : "Unknown error"));
     }
   };
 
@@ -1697,8 +1932,9 @@ const AdminPanelView = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      alert(currentLang === 'hi' ? "छवि 2MB से अधिक नहीं होनी चाहिए" : currentLang === 'jp' ? "画像は2MBを超えてはいけません" : "Image size exceeds 2MB");
+    // QR codes should be small. 500KB is plenty and avoids Firestore 1MB document limit.
+    if (file.size > 500 * 1024) {
+      alert(currentLang === 'hi' ? "छवि 500KB से अधिक नहीं होनी चाहिए" : currentLang === 'jp' ? "画像は500KBを超えてはいけません" : "Image size exceeds 500KB. Please use a smaller QR code image.");
       return;
     }
 
@@ -1718,9 +1954,10 @@ const AdminPanelView = ({
         ...systemSettings,
         updatedAt: serverTimestamp()
       });
-      alert(currentLang === 'hi' ? "सिस्टम सेटिंग्स सफलतापूर्वक सहेजी गईं" : currentLang === 'jp' ? "システム設定が保存されました" : "System settings saved successfully");
+      alert(currentLang === 'hi' ? "सिस्टम सेटिंग्स सफलतापूर्वक सहेजी गईं" : currentLang === 'jp' ? "システム設定が保存されました" : currentLang === 'cn' ? "系统设置保存成功" : "System settings saved successfully");
     } catch (err) {
       console.error("Save Settings Error:", err);
+      alert("Error saving settings: " + (err instanceof Error ? err.message : "Unknown error"));
     }
   };
 
@@ -1743,6 +1980,7 @@ const AdminPanelView = ({
     { id: 'members', label: t('memberManagement'), icon: Users, badge: 0 },
     { id: 'info', label: t('infoLabel', { fallback: 'News' }), icon: Newspaper, badge: 0 },
     { id: 'settings', label: t('systemSettings'), icon: Settings, badge: 0 },
+    { id: 'cms', label: t('contentMgmtSystem'), icon: Edit, badge: 0 },
   ];
 
   return (
@@ -1872,17 +2110,33 @@ const AdminPanelView = ({
         {/* Finance View (Audit) */}
         {activeSubView === 'finance' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                <h3 className="text-sm font-black uppercase tracking-widest">{t('pendingReview')} ({pendingTransactions.length})</h3>
-              </div>
+            <div className="flex gap-4 mb-4">
+              <button 
+                onClick={() => setFinanceTab('pending')}
+                className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                  financeTab === 'pending' ? 'bg-editorial-navy text-white shadow-lg shadow-gray-200' : 'bg-white text-gray-400 border border-gray-100 hover:bg-gray-50'
+                }`}
+              >
+                {t('pendingReview')} ({pendingTransactions.length})
+              </button>
+              <button 
+                onClick={() => setFinanceTab('history')}
+                className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                  financeTab === 'history' ? 'bg-editorial-navy text-white shadow-lg shadow-gray-200' : 'bg-white text-gray-400 border border-gray-100 hover:bg-gray-50'
+                }`}
+              >
+                {t('withdrawHistory')} / {t('historyTitle')}
+              </button>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden text-[#5d6a85]">
               <div className="divide-y divide-gray-50">
-                {pendingTransactions.length === 0 ? (
+                {(financeTab === 'pending' ? pendingTransactions : allTransactions).length === 0 ? (
                   <div className="text-center py-20 text-gray-400 text-xs font-bold uppercase tracking-widest">
                     {t('noPendingRequests')}
                   </div>
                 ) : (
-                  pendingTransactions.map(tx => (
+                  (financeTab === 'pending' ? pendingTransactions : allTransactions).map(tx => (
                     <div key={tx.id} className="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
                       <div className="flex items-center gap-6">
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${tx.type === 'deposit' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
@@ -1893,26 +2147,66 @@ const AdminPanelView = ({
                             <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${tx.type === 'deposit' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
                               {tx.type === 'deposit' ? t('depositAction') : t('withdrawAction')}
                             </span>
+                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
+                              tx.status === 'completed' ? 'bg-green-100 text-green-700' : 
+                              tx.status === 'failed' ? 'bg-red-100 text-red-700' : 
+                              'bg-yellow-100 text-yellow-700'
+                            }`}>
+                              {t(`status${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}`)}
+                            </span>
                             <span className="text-[10px] font-black text-gray-400">{tx.network}</span>
                           </div>
                           <div className="text-xl font-black italic tracking-tight text-gray-900">${tx.amount.toLocaleString()}</div>
-                          <div className="text-[10px] font-mono text-gray-400 truncate max-w-[200px] mt-1">{tx.address}</div>
+                          
+                          <div className="mt-2 flex flex-col gap-1 text-[#5d6a85]">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-black uppercase text-gray-400">User:</span>
+                              <span className="text-xs font-bold text-editorial-navy">{tx.userName}</span>
+                              <span className="text-[10px] text-gray-400 font-medium">({tx.userEmail})</span>
+                            </div>
+                            
+                            {tx.address && (
+                              <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-lg mt-1 group">
+                                <span className="text-[10px] font-black uppercase text-gray-400">Wallet:</span>
+                                <code className="text-[11px] font-mono font-bold text-editorial-navy truncate max-w-[240px]">
+                                  {tx.address}
+                                </code>
+                                <button 
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(tx.address || "");
+                                    alert("Address copied!");
+                                  }}
+                                  className="p-1 hover:bg-white rounded transition-colors text-gray-400 hover:text-editorial-navy"
+                                  title="Copy Address"
+                                >
+                                  <Copy size={12} />
+                                </button>
+                              </div>
+                            )}
+                            
+                            <div className="text-[9px] font-bold text-gray-300 uppercase tracking-widest mt-1">
+                              {tx.timestamp?.toDate ? tx.timestamp.toDate().toLocaleString() : 'N/A'}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => handleUpdateTransaction(tx.userId, tx.id, 'completed')}
-                          className="px-6 py-3 bg-green-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-green-700 active:scale-95 transition-all shadow-lg shadow-green-200"
-                        >
-                          {t('approveBtn')}
-                        </button>
-                        <button 
-                          onClick={() => handleUpdateTransaction(tx.userId, tx.id, 'failed')}
-                          className="px-6 py-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200"
-                        >
-                          {t('rejectBtn')}
-                        </button>
-                      </div>
+                      
+                      {tx.status === 'pending' && (
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleUpdateTransaction(tx.userId, tx.id, 'completed')}
+                            className="px-6 py-3 bg-green-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-green-700 active:scale-95 transition-all shadow-lg shadow-green-200"
+                          >
+                            {t('approveBtn')}
+                          </button>
+                          <button 
+                            onClick={() => handleUpdateTransaction(tx.userId, tx.id, 'failed')}
+                            className="px-6 py-3 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-700 active:scale-95 transition-all shadow-lg shadow-red-200"
+                          >
+                            {t('rejectBtn')}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))
                 )}
@@ -1920,6 +2214,7 @@ const AdminPanelView = ({
             </div>
           </div>
         )}
+
 
         {/* Member Management View */}
         {(activeSubView === 'members' || activeSubView === 'positions') && (
@@ -1958,10 +2253,10 @@ const AdminPanelView = ({
                         </div>
                       </td>
                       <td className="px-6 py-4 text-xs font-black italic tracking-tight text-editorial-navy">
-                        ${(user.principalBalance || 0).toLocaleString()}
+                        <AdminUserBalance user={user} type="principal" defaultApy={liveApy} />
                       </td>
-                      <td className="px-6 py-4 text-xs font-black italic tracking-tight text-green-600">
-                        ${(user.totalEarnings || 0).toLocaleString()}
+                      <td className="px-6 py-4 text-xs font-black italic tracking-tight">
+                        <AdminUserBalance user={user} type="earnings" defaultApy={liveApy} />
                       </td>
                       <td className="px-6 py-4 font-black">
                          <span className={`text-[10px] px-2 py-0.5 rounded-full ${user.customApy ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-gray-50 text-gray-400'}`}>
@@ -2103,6 +2398,124 @@ const AdminPanelView = ({
           </div>
         )}
 
+        {/* CMS / Content Management */}
+        {activeSubView === 'cms' && (
+          <div className="space-y-8 max-w-4xl">
+            {/* Landing Message Section */}
+            <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+              <h3 className="text-sm font-black uppercase tracking-widest mb-6">{t('repLabel')}</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Welcome Title / Message</label>
+                  <textarea 
+                    value={systemSettings.welcomeTitle}
+                    onChange={e => setSystemSettings({...systemSettings, welcomeTitle: e.target.value})}
+                    className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold min-h-[100px]"
+                    placeholder={t('welcomeTitle')}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Representative Name</label>
+                    <input 
+                      type="text"
+                      value={systemSettings.repName}
+                      onChange={e => setSystemSettings({...systemSettings, repName: e.target.value})}
+                      className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold"
+                      placeholder={t('representative')}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Representative Description</label>
+                    <input 
+                      type="text"
+                      value={systemSettings.repDesc}
+                      onChange={e => setSystemSettings({...systemSettings, repDesc: e.target.value})}
+                      className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold"
+                      placeholder={t('repDesc')}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-sm font-black uppercase tracking-widest">{t('faqLabel')}</h3>
+                <button 
+                  onClick={() => setSystemSettings({
+                    ...systemSettings,
+                    faqs: [...(systemSettings.faqs || []), { q: "", a: "" }]
+                  })}
+                  className="bg-black text-white text-[10px] font-black px-4 py-2 rounded-lg uppercase tracking-widest flex items-center gap-2"
+                >
+                  <Plus size={14} /> Add FAQ
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {systemSettings.faqs?.map((faq: any, idx: number) => (
+                  <div key={idx} className="p-6 bg-gray-50 rounded-2xl relative border border-gray-100">
+                    <button 
+                      onClick={() => {
+                        const newFaqs = [...systemSettings.faqs];
+                        newFaqs.splice(idx, 1);
+                        setSystemSettings({ ...systemSettings, faqs: newFaqs });
+                      }}
+                      className="absolute top-4 right-4 text-gray-400 hover:text-red-500"
+                    >
+                      <X size={16} />
+                    </button>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Question ({idx + 1})</label>
+                        <input 
+                          type="text"
+                          value={faq.q}
+                          onChange={e => {
+                            const newFaqs = [...systemSettings.faqs];
+                            newFaqs[idx].q = e.target.value;
+                            setSystemSettings({ ...systemSettings, faqs: newFaqs });
+                          }}
+                          className="w-full bg-white border border-gray-200 p-4 rounded-xl text-xs font-bold"
+                          placeholder="Why is JPY yield low?"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Answer ({idx + 1})</label>
+                        <textarea 
+                          value={faq.a}
+                          onChange={e => {
+                            const newFaqs = [...systemSettings.faqs];
+                            newFaqs[idx].a = e.target.value;
+                            setSystemSettings({ ...systemSettings, faqs: newFaqs });
+                          }}
+                          className="w-full bg-white border border-gray-200 p-4 rounded-xl text-xs font-bold min-h-[100px]"
+                          placeholder="Because interest rates in Japan are near zero..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {(!systemSettings.faqs || systemSettings.faqs.length === 0) && (
+                  <div className="text-center py-10 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-gray-400 text-xs font-bold italic">
+                    No custom FAQs defined. Default translations will be used.
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-8 pt-8 border-t">
+                <button 
+                  onClick={handleSaveSettings}
+                  className="w-full bg-editorial-navy text-white font-black py-4 rounded-xl text-[10px] uppercase tracking-[0.3em] active:scale-95 transition-all shadow-lg shadow-editorial-navy/10"
+                >
+                  SAVE HOME CONTENT
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Placeholders for unfinished views */}
         {(activeSubView === 'products' || activeSubView === 'info') && (
           <div className="flex flex-col items-center justify-center py-40 bg-white rounded-3xl border-2 border-dashed border-gray-100 p-10 text-center">
@@ -2145,11 +2558,11 @@ const AdminPanelView = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">主要本金 (USDT)</label>
-                    <input type="number" value={editingUser.principalBalance} onChange={e => setEditingUser({...editingUser, principalBalance: e.target.value})} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold" />
+                    <input type="number" step="any" value={editingUser.principalBalance} onChange={e => setEditingUser({...editingUser, principalBalance: e.target.value})} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">累计收益 (USDT)</label>
-                    <input type="number" value={editingUser.totalEarnings} onChange={e => setEditingUser({...editingUser, totalEarnings: e.target.value})} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold" />
+                    <input type="number" step="any" value={editingUser.totalEarnings} onChange={e => setEditingUser({...editingUser, totalEarnings: e.target.value})} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold" />
                   </div>
                 </div>
 
@@ -2179,7 +2592,8 @@ const DashboardView = ({
   liveApy, 
   onAccountUpdate,
   currentLang,
-  onLangChange
+  onLangChange,
+  sysSettings
 }: { 
   onBack: () => void, 
   onLogout: () => void,
@@ -2188,7 +2602,8 @@ const DashboardView = ({
   liveApy: number, 
   onAccountUpdate: (principal: number, earnings: number) => void,
   currentLang: string,
-  onLangChange: (code: string) => void
+  onLangChange: (code: string) => void,
+  sysSettings: any
 }) => {
   const t = (key: string, params?: Record<string, any>) => {
     let text = TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS.en[key] || key;
@@ -2202,13 +2617,18 @@ const DashboardView = ({
   const [activeTab, setActiveTab] = useState<'home' | 'history' | 'invite' | 'settings'>('home');
   const [activeSettingsView, setActiveSettingsView] = useState<'main' | 'security' | 'wallet'>('main');
   
-  // Real-time Balance States fetched from Firestore
-  const [principalBalance, setPrincipalBalance] = useState(0);
-  const [totalEarnings, setTotalEarnings] = useState(0);
-  const [yesterdayEarnings, setYesterdayEarnings] = useState(0);
-  
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [showDepositModal, setShowDepositModal] = useState(false);
+    // Real-time Balance States fetched from Firestore
+    const [principalBalance, setPrincipalBalance] = useState(0);
+    const [totalEarnings, setTotalEarnings] = useState(0);
+    const [yesterdayEarnings, setYesterdayEarnings] = useState(0);
+    const [lastSettlementTime, setLastSettlementTime] = useState<Date | null>(null);
+    const [earningsRecords, setEarningsRecords] = useState<any[]>([]);
+    
+    // Ticking earnings state (separate from totalEarnings to handle compounding smoothly)
+    const [accruedSinceSettlement, setAccruedSinceSettlement] = useState(0);
+
+    const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+    const [showDepositModal, setShowDepositModal] = useState(false);
   const [depositNetwork, setDepositNetwork] = useState<'TRC20' | 'ERC20'>('TRC20');
   const [copied, setCopied] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -2217,40 +2637,16 @@ const DashboardView = ({
   const [withdrawAmount, setWithdrawAmount] = useState<string>("");
   const [withdrawAddress, setWithdrawAddress] = useState<string>("");
   const [withdrawNetwork, setWithdrawNetwork] = useState<'TRC20' | 'ERC20'>('TRC20');
-  const [historyTab, setHistoryTab] = useState<'earnings' | 'capital'>('earnings');
+  const [historyTab, setHistoryTab] = useState<'earnings' | 'capital' | 'transactions'>('earnings');
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [walletAddress, setWalletAddress] = useState("");
   const [isDepositing, setIsDepositing] = useState(false);
   const [showSupportQrModal, setShowSupportQrModal] = useState(false);
   const [pendingDepositAmount, setPendingDepositAmount] = useState<number | null>(null);
   const [depositInputAmount, setDepositInputAmount] = useState<string>("");
-  const [showAdminAuthModal, setShowAdminAuthModal] = useState(false);
-  const [adminCodeInput, setAdminCodeInput] = useState("");
-  const [adminCodeError, setAdminCodeError] = useState(false);
-  
-  // Referral States
   const [referrals, setReferrals] = useState<any[]>([]);
   const [referralCount, setReferralCount] = useState(0);
   const [totalReferralBonusAmount, setTotalReferralBonusAmount] = useState(0);
-
-  const [sysSettings, setSysSettings] = useState({
-    customerServiceUrl: "",
-    customerServiceQr: "",
-    depositWalletTrc20: "TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    qrCodeTrc20: "",
-    depositWalletErc20: "0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    qrCodeErc20: "",
-    adminSecretCode: "888888"
-  });
-
-  useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'settings', 'system'), (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        setSysSettings(prev => ({ ...prev, ...data }));
-      }
-    });
-    return () => unsub();
-  }, []);
 
   useEffect(() => {
     if (!userProfile?.uid) return;
@@ -2285,13 +2681,55 @@ const DashboardView = ({
 
     // Listen to Portfolio
     const portfolioRef = doc(db, 'users', userProfile.uid, 'portfolio', 'main');
-    const unsubPortfolio = onSnapshot(portfolioRef, (snapshot) => {
+    const unsubPortfolio = onSnapshot(portfolioRef, async (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data();
-        setPrincipalBalance(data.principalBalance || 0);
-        setTotalEarnings(data.totalEarnings || 0);
+        const principal = data.principalBalance || 0;
+        const earnings = data.totalEarnings || 0;
+        const lastUpdated = data.lastUpdated?.toDate() || new Date();
+
+        setPrincipalBalance(principal);
+        setTotalEarnings(earnings);
+        setLastSettlementTime(lastUpdated);
+
+        // Perform settlement if 24 hours passed
+        const now = new Date();
+        const secondsPassed = (now.getTime() - lastUpdated.getTime()) / 1000;
+        
+        // Settlement interval: 24 hours (86400 seconds)
+        if (principal > 0 && secondsPassed >= 86400) {
+          const daysPassed = Math.floor(secondsPassed / 86400);
+          const batch = writeBatch(db);
+          let currentE = earnings;
+
+          for (let i = 0; i < daysPassed; i++) {
+            // COMPOUNDING: Interest on (Principal + Previous Earnings)
+            const dailyProfit = (principal + currentE) * (liveApy / 100 / 365);
+            currentE += dailyProfit;
+
+            const recordRef = doc(collection(db, 'users', userProfile!.uid, 'portfolio', 'main', 'earnings'));
+            batch.set(recordRef, {
+              amount: dailyProfit,
+              type: 'daily_yield',
+              timestamp: serverTimestamp(),
+              description: `Daily interest settlement with compounding (${(principal + (currentE - dailyProfit)).toLocaleString()} USDT @ ${liveApy}%)`
+            });
+          }
+
+          try {
+            batch.set(portfolioRef, {
+              totalEarnings: currentE,
+              lastUpdated: serverTimestamp()
+            }, { merge: true });
+
+            await batch.commit();
+          } catch (err) {
+            console.error("Auto Settlement Error:", err);
+          }
+        }
+
         // Sync parent for unified calculations
-        onAccountUpdate(data.principalBalance || 0, data.totalEarnings || 0);
+        onAccountUpdate(principal, earnings);
       } else {
         // Initialize portfolio if not exists
         setDoc(portfolioRef, {
@@ -2302,42 +2740,63 @@ const DashboardView = ({
       }
     }, (err) => handleFirestoreError(err, OperationType.GET, portfolioRef.path));
 
-    return () => unsubPortfolio();
+    // Listen to Transactions
+    const txRef = collection(db, 'users', userProfile!.uid, 'transactions');
+    const qTx = query(txRef, orderBy('timestamp', 'desc'), limit(50));
+    const unsubTx = onSnapshot(qTx, (snapshot) => {
+      setTransactions(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (err) => handleFirestoreError(err, OperationType.GET, txRef.path));
+
+    // Listen to Earnings History
+    const earningsHistoryRef = collection(db, 'users', userProfile!.uid, 'portfolio', 'main', 'earnings');
+    const qEarnings = query(earningsHistoryRef, orderBy('timestamp', 'desc'), limit(30));
+    const unsubEarnings = onSnapshot(qEarnings, (snapshot) => {
+      const records = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setEarningsRecords(records);
+      
+      if (records.length > 0) {
+        // Sum up records from the last 24 hours to show a consistent "recent yield"
+        const now = new Date().getTime();
+        const past24h = now - (24 * 60 * 60 * 1000);
+        
+        const recentTotal = records.reduce((acc, rec: any) => {
+          const ts = rec.timestamp?.toDate ? rec.timestamp.toDate().getTime() : 0;
+          if (ts > past24h) {
+            return acc + (rec.amount || 0);
+          }
+          return acc;
+        }, 0);
+
+        // Fallback to the absolute latest if no records in 24h (edge case) or show the sum
+        setYesterdayEarnings(recentTotal > 0 ? recentTotal : ((records[0] as any).amount || 0));
+      }
+    }, (err) => handleFirestoreError(err, OperationType.GET, earningsHistoryRef.path));
+
+    return () => {
+      unsubPortfolio();
+      unsubTx();
+      unsubEarnings();
+    };
   }, [userProfile?.uid, onAccountUpdate]);
 
   const isNewUser = principalBalance <= 0;
 
   // Dynamic history generation based on current time and balance
   const earningsHistory = useMemo(() => {
-    if (isNewUser) return [];
-    
-    const records = [];
-    const now = new Date();
-    // Use a fixed seed-like approach based on principal to keep values consistent during the session
-    for (let i = 0; i < 24; i++) {
-      const time = new Date(now.getTime() - i * 3600 * 1000);
-      // Daily profit is roughly APY/365, so hourly is APY/365/24
-      const hourlyProfit = principalBalance * (liveApy / 100 / 365 / 24);
-      // Add a tiny bit of jitter to make it look "real"
-      const jitter = 1 + (Math.sin(i * 1.5) * 0.02); 
-      const amount = hourlyProfit * jitter;
-      
-      records.push({
-        date: `${time.getFullYear()}/${(time.getMonth() + 1).toString().padStart(2, '0')}/${time.getDate().toString().padStart(2, '0')}`,
-        time: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
-        amount: `+$${amount.toFixed(2)}`,
-        type: t('interestEarning')
-      });
-    }
-    return records;
-  }, [principalBalance, liveApy, isNewUser, currentLang]);
+    return earningsRecords.map(rec => ({
+      date: rec.timestamp?.toDate ? rec.timestamp.toDate().toLocaleDateString() : new Date().toLocaleDateString(),
+      time: rec.timestamp?.toDate ? rec.timestamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "00:00",
+      type: t('dailyEarning'),
+      amount: `+$${(rec.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDT`
+    }));
+  }, [earningsRecords, t]);
 
   const capitalHistory = useMemo(() => {
     if (isNewUser) return [];
     return [
       { date: "2026/04/17", amount: `+$${principalBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, type: t('initialDeposit'), color: "text-editorial-navy" }
     ];
-  }, [principalBalance, isNewUser, currentLang]);
+  }, [principalBalance, isNewUser, t]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -2346,50 +2805,70 @@ const DashboardView = ({
   };
 
   const depositAddresses = {
-    TRC20: sysSettings.depositWalletTrc20 || "TA2f8kP6q8v8r8r8r8r8rpcF9S7qZ7v7v7",
-    ERC20: sysSettings.depositWalletErc20 || "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+    TRC20: sysSettings.depositWalletTrc20 || "TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    ERC20: sysSettings.depositWalletErc20 || "0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
   };
 
   // Initialize mock earnings based on principal if it's an "old user" (coming from landing or test deposit)
+  // 移除模拟历史数据的 Effect，确保所有数据来自数据库或真实的实时计算
   useEffect(() => {
-    if (principalBalance > 0 && (totalEarnings === 0 || yesterdayEarnings === 0)) {
-      // Mock some historical data: yesterday roughly 1/365 of annual 4.8%
-      const mockYesterday = principalBalance * (liveApy / 100 / 365);
-      
-      setYesterdayEarnings(mockYesterday);
-      if (totalEarnings === 0) {
-        // Total roughly 35 days of earnings
-        const mockTotal = mockYesterday * 34.58;
-        setTotalEarnings(mockTotal);
-      }
-    } else if (principalBalance === 0) {
+    if (principalBalance === 0) {
       setYesterdayEarnings(0);
       setTotalEarnings(0);
     }
-  }, [principalBalance, liveApy]);
+  }, [principalBalance]);
 
   // Real-time ticking logic
   useEffect(() => {
-    if (isNewUser) return;
+    if (isNewUser || !lastSettlementTime) return;
     
-    // Increment amount per second = (principal * APY) / (365 * 24 * 3600)
+    // Initial accrued calculation from last settlement to now (to catch up pending)
+    const calculatePending = () => {
+      const now = new Date();
+      const secondsSinceSettle = (now.getTime() - lastSettlementTime.getTime()) / 1000;
+      const apyFactor = liveApy / 100;
+      // Compounding baseline: Principal + Settled Earnings
+      return (principalBalance + totalEarnings) * (apyFactor / (365 * 24 * 3600)) * Math.max(0, secondsSinceSettle);
+    };
+
+    setAccruedSinceSettlement(calculatePending());
+
     const apyFactor = liveApy / 100;
-    const incrementPerSecond = (principalBalance * apyFactor) / (365 * 24 * 3600);
+    const incrementPerSecond = ((principalBalance + totalEarnings) * apyFactor) / (365 * 24 * 3600);
     
     const timer = setInterval(() => {
-      setTotalEarnings(prev => prev + incrementPerSecond);
+      setAccruedSinceSettlement(prev => prev + incrementPerSecond);
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [isNewUser, principalBalance, liveApy]);
+  }, [isNewUser, principalBalance, liveApy, lastSettlementTime]);
 
-  const displayTotalBalance = principalBalance + totalEarnings;
+  const displayTotalEarnings = totalEarnings + accruedSinceSettlement;
+  const displayTotalBalance = principalBalance + displayTotalEarnings;
 
   const handleWithdraw = async () => {
     const amount = parseFloat(withdrawAmount);
     if (isNaN(amount) || amount <= 0 || amount > displayTotalBalance || !userProfile?.uid) return;
 
+    setIsWithdrawing(true);
     try {
+      // 1. Settle accrued interest first
+      const portfolioRef = doc(db, 'users', userProfile.uid, 'portfolio', 'main');
+      const snap = await getDoc(portfolioRef);
+      let currentEarnings = totalEarnings;
+      
+      if (snap.exists()) {
+        const data = snap.data();
+        const lastUpdated = data.lastUpdated?.toDate() || new Date();
+        const secondsPassed = (new Date().getTime() - lastUpdated.getTime()) / 1000;
+        
+        if (principalBalance > 0 && secondsPassed > 0) {
+          const apyFactor = liveApy / 100;
+          const accrued = principalBalance * (apyFactor / (365 * 24 * 3600)) * secondsPassed;
+          currentEarnings += accrued;
+        }
+      }
+
       const txRef = doc(collection(db, 'users', userProfile.uid, 'transactions'));
       await setDoc(txRef, {
         type: 'withdrawal',
@@ -2400,18 +2879,24 @@ const DashboardView = ({
         timestamp: serverTimestamp()
       });
 
-      // Update Portfolio
-      const portfolioRef = doc(db, 'users', userProfile.uid, 'portfolio', 'main');
+      // 2. Update Portfolio
       await setDoc(portfolioRef, {
         principalBalance: Math.max(0, principalBalance - amount),
+        totalEarnings: currentEarnings,
         lastUpdated: serverTimestamp()
       }, { merge: true });
 
+      alert(currentLang === 'jp' ? "出金申請が送信されました。審査をお待ちください。" : currentLang === 'cn' ? "提现申请已提交，请等待审核。" : "Withdrawal request submitted. Please wait for review.");
+      
       setWithdrawAmount("");
       setWithdrawAddress("");
       setShowWithdrawModal(false);
     } catch (error) {
+      console.error("Withdraw Error:", error);
+      alert("Error: " + (error instanceof Error ? error.message : "Unknown error"));
       handleFirestoreError(error, OperationType.WRITE, 'withdrawal_flow');
+    } finally {
+      setIsWithdrawing(false);
     }
   };
 
@@ -2438,10 +2923,27 @@ const DashboardView = ({
         timestamp: serverTimestamp()
       });
 
-      // 2. Update Balance
+      // 2. Settle accrued interest first so new funds don't get historical rates
       const portfolioRef = doc(db, 'users', userProfile.uid, 'portfolio', 'main');
+      const snap = await getDoc(portfolioRef);
+      let currentEarnings = totalEarnings;
+      
+      if (snap.exists()) {
+        const data = snap.data();
+        const lastUpdated = data.lastUpdated?.toDate() || new Date();
+        const secondsPassed = (new Date().getTime() - lastUpdated.getTime()) / 1000;
+        
+        if (principalBalance > 0 && secondsPassed > 0) {
+          const apyFactor = liveApy / 100;
+          const accrued = principalBalance * (apyFactor / (365 * 24 * 3600)) * secondsPassed;
+          currentEarnings += accrued;
+        }
+      }
+
+      // 3. Update Balance and Earnings together
       await setDoc(portfolioRef, {
         principalBalance: principalBalance + finalAmount,
+        totalEarnings: currentEarnings,
         lastUpdated: serverTimestamp()
       }, { merge: true });
 
@@ -2573,7 +3075,7 @@ const DashboardView = ({
                   </div>
                   <div>
                     <div className="text-xs font-black">{item.amount} USDT</div>
-                    <div className="text-[9px] text-gray-400 font-mono italic">{item.date} {item.time}</div>
+                    <div className="text-[9px] text-gray-400 font-mono italic">{item.date}{item.time ? ` ${item.time}` : ''}</div>
                   </div>
                 </div>
                 <div className="text-[8px] font-bold text-editorial-green uppercase tracking-tighter bg-green-50 px-1.5 py-0.5 rounded">
@@ -2621,6 +3123,12 @@ const DashboardView = ({
         >
           {t('capitalChanges')}
         </button>
+        <button 
+          onClick={() => setHistoryTab('transactions')}
+          className={`flex-1 pb-3 text-[11px] uppercase tracking-widest transition-colors ${historyTab === 'transactions' ? 'text-editorial-gold border-b-2 border-editorial-gold' : 'text-gray-300'}`}
+        >
+          {t('withdrawHistory')}
+        </button>
       </div>
 
       <div className="space-y-3">
@@ -2630,7 +3138,7 @@ const DashboardView = ({
             earningsHistory.map((item, idx) => (
               <div key={idx} className="bg-white p-4 flex items-center justify-between border border-gray-50 rounded shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-300" style={{ animationDelay: `${idx * 50}ms` }}>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-gray-400 mb-1">{item.date} {item.time}</span>
+                  <span className="text-[10px] font-bold text-gray-400 mb-1">{item.date}{item.time ? ` ${item.time}` : ''}</span>
                   <span className="text-xs font-black">{item.type}</span>
                 </div>
                 <span className="text-sm font-black text-editorial-green">{item.amount}</span>
@@ -2643,7 +3151,7 @@ const DashboardView = ({
               </p>
             </div>
           )
-        ) : (
+        ) : historyTab === 'capital' ? (
           // Capital Movements
           capitalHistory.length > 0 ? (
             capitalHistory.map((item, idx) => (
@@ -2659,6 +3167,43 @@ const DashboardView = ({
              <div className="py-20 text-center">
               <p className="text-[10px] text-gray-300 font-bold uppercase tracking-widest">
                 {t('noCapital')}
+              </p>
+            </div>
+          )
+        ) : (
+          // Transactions History
+          transactions.length > 0 ? (
+            transactions.map((tx, idx) => (
+              <div key={idx} className="bg-white p-4 flex items-center justify-between border border-gray-50 rounded shadow-sm">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black">
+                      {tx.type === 'withdrawal' ? 'Withdraw USDT' : 'Deposit USDT'}
+                    </span>
+                    <span className={`text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                      tx.status === 'pending' ? 'bg-yellow-500/10 text-yellow-600' : 
+                      tx.status === 'completed' ? 'bg-green-500/10 text-green-600' : 
+                      'bg-red-500/10 text-red-600'
+                    }`}>
+                      {t(`status${tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}`)}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold text-gray-400">
+                    {tx.timestamp?.toDate ? tx.timestamp.toDate().toLocaleString() : 'Processing...'}
+                  </span>
+                  {tx.address && (
+                    <span className="text-[8px] font-mono text-gray-300 truncate max-w-[150px]">{tx.address}</span>
+                  )}
+                </div>
+                <span className={`text-sm font-black ${tx.type === 'withdrawal' ? 'text-gray-900' : 'text-editorial-green'}`}>
+                  {tx.type === 'withdrawal' ? '-' : '+'}{tx.amount?.toLocaleString()}
+                </span>
+              </div>
+            ))
+          ) : (
+            <div className="py-20 text-center">
+              <p className="text-[10px] text-gray-300 font-bold uppercase tracking-widest">
+                {t('historyEmpty')}
               </p>
             </div>
           )
@@ -2840,9 +3385,7 @@ const DashboardView = ({
               key={idx} 
               onClick={() => {
                 if (item.id === 'admin') {
-                  setShowAdminAuthModal(true);
-                  setAdminCodeInput("");
-                  setAdminCodeError(false);
+                  onAdminPanel();
                 }
                 else if (item.id === 'security' || item.id === 'wallet' || item.id === 'language') setActiveSettingsView(item.id as any);
               }}
@@ -3122,7 +3665,7 @@ const DashboardView = ({
               </div>
               <div className="text-center border-x border-white/10">
                 <div className="text-[8px] font-bold text-white/50 uppercase tracking-wider mb-0.5 px-1 leading-tight">{t('totalYield')}</div>
-                <div className="text-xs font-black text-white">{!isNewUser ? `+$${totalEarnings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$0.00"}</div>
+                <div className="text-xs font-black text-white">{!isNewUser ? `+$${displayTotalEarnings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$0.00"}</div>
               </div>
               <div className="text-center">
                 <div className="text-[8px] font-bold text-white/50 uppercase tracking-wider mb-0.5 px-1 leading-tight">{t('currentApy')}</div>
@@ -3632,95 +4175,6 @@ const DashboardView = ({
           </div>
         )}
       </AnimatePresence>
-
-      {/* Admin PIN Authentication Modal */}
-      <AnimatePresence>
-        {showAdminAuthModal && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 text-editorial-navy">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowAdminAuthModal(false)}
-              className="absolute inset-0 bg-editorial-navy/60 backdrop-blur-md"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative bg-white w-full max-w-sm rounded p-8 shadow-2xl border-t-4 border-editorial-gold z-[301]"
-            >
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 rounded-full bg-editorial-gold/5 flex items-center justify-center text-editorial-gold mb-6 border border-editorial-gold/20 shadow-inner">
-                  <ShieldCheck size={32} />
-                </div>
-                <h3 className="text-xl font-black italic tracking-tight uppercase mb-2 leading-tight">
-                  {t('adminAuthTitle')}
-                </h3>
-                <p className="text-[10px] text-editorial-gray font-bold leading-relaxed mb-8">
-                  {t('adminAuthDesc')}
-                </p>
-                
-                <div className="w-full space-y-4">
-                  <div className="relative group">
-                    <input 
-                      type="password"
-                      maxLength={12}
-                      value={adminCodeInput}
-                      autoFocus
-                      inputMode="numeric"
-                      onChange={(e) => {
-                        setAdminCodeInput(e.target.value);
-                        setAdminCodeError(false);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          const currentSecret = sysSettings.adminSecretCode || "888888";
-                          if (adminCodeInput === currentSecret) {
-                            setShowAdminAuthModal(false);
-                            onAdminPanel();
-                          } else {
-                            setAdminCodeError(true);
-                          }
-                        }
-                      }}
-                      placeholder={t('adminAuthPlaceholder')}
-                      className={`w-full bg-gray-50 border-2 ${adminCodeError ? 'border-red-500' : 'border-gray-100'} p-4 rounded text-center text-lg font-black tracking-[0.5em] focus:outline-none focus:border-editorial-gold transition-all`}
-                    />
-                    {adminCodeError && (
-                      <p className="text-[9px] text-red-500 font-bold mt-2 uppercase tracking-tighter animate-bounce">
-                        {t('adminAuthError')}
-                      </p>
-                    )}
-                  </div>
-
-                  <button 
-                    onClick={() => {
-                      const currentSecret = sysSettings.adminSecretCode || "888888";
-                      if (adminCodeInput === currentSecret) {
-                        setShowAdminAuthModal(false);
-                        onAdminPanel();
-                      } else {
-                        setAdminCodeError(true);
-                      }
-                    }}
-                    className="w-full bg-editorial-navy text-white font-black py-4 rounded text-xs uppercase tracking-[0.2em] shadow-xl shadow-editorial-navy/10 active:scale-95 transition-transform"
-                  >
-                    {t('verify')}
-                  </button>
-                  
-                  <button 
-                    onClick={() => setShowAdminAuthModal(false)}
-                    className="w-full text-editorial-gray font-black py-2 text-[10px] uppercase tracking-widest hover:text-editorial-navy transition-colors"
-                  >
-                    {t('cancel')}
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
@@ -3802,7 +4256,7 @@ export default function App() {
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [depositAmount, setDepositAmount] = useState<number | string>(10000);
-  const [liveApy, setLiveApy] = useState(4.82);
+  const [liveApy, setLiveApy] = useState(12.45);
   const [showTooltip, setShowTooltip] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authSuccess, setAuthSuccess] = useState(false);
@@ -3811,7 +4265,13 @@ export default function App() {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [inviteCodeInput, setInviteCodeInput] = useState("");
+  const inviteCodeRef = React.useRef("");
+  
+  useEffect(() => {
+    inviteCodeRef.current = inviteCodeInput;
+  }, [inviteCodeInput]);
   
   // Real Account States (Synced via DashboardView effects)
   const [accountPrincipal, setAccountPrincipal] = useState(0);
@@ -3831,64 +4291,75 @@ export default function App() {
   // Auth Observer
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async (firebaseUser) => {
+      console.log("Auth Event:", firebaseUser ? "Signed In" : "Signed Out");
+      
       if (firebaseUser) {
-        // Fetch/Initialize Profile in Firestore
-        const userRef = doc(db, 'users', firebaseUser.uid);
         try {
+          const userRef = doc(db, 'users', firebaseUser.uid);
           const snap = await getDoc(userRef);
-          if (!snap.exists()) {
+          
+          let profileData: any = null;
+          if (snap.exists()) {
+            profileData = snap.data();
+            // Admin role override
+            if (firebaseUser.email === "oopqwe001@gmail.com" && profileData.role !== "admin") {
+              await setDoc(userRef, { role: "admin" }, { merge: true });
+              profileData.role = "admin";
+            }
+          } else {
+            // New user initialization
             const shortUid = firebaseUser.uid.substring(0, 4).toUpperCase();
-            const randomCode = Math.floor(1000 + Math.random() * 9000);
-            const referralCode = `KIZUNA-${shortUid}${randomCode}`;
-
+            const referralCode = `KIZUNA-${shortUid}${Math.floor(1000 + Math.random() * 9000)}`;
             const role = firebaseUser.email === "oopqwe001@gmail.com" ? "admin" : "user";
-            await setDoc(userRef, {
+            
+            profileData = {
               uid: firebaseUser.uid,
-              name: firebaseUser.displayName || email.split('@')[0] || 'Member',
+              name: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Member'),
               email: firebaseUser.email,
               method: firebaseUser.providerData[0]?.providerId === 'google.com' ? 'google' : 'email',
-              referralCode: referralCode,
+              referralCode,
               referralCount: 0,
               referralBonus: 0,
-              invitedByCode: inviteCodeInput || null,
+              invitedByCode: inviteCodeRef.current || null,
               createdAt: serverTimestamp(),
-              role: role,
+              role,
               customApy: null
-            });
-            // Clear input after use
-            setInviteCodeInput("");
-          }
-          let userData = (await getDoc(userRef)).data();
-          
-          // Force admin role for specific user even if it was 'user' before
-          if (firebaseUser.email === "oopqwe001@gmail.com" && userData?.role !== "admin") {
-            await setDoc(userRef, { role: "admin" }, { merge: true });
-            userData.role = "admin";
+            };
+            await setDoc(userRef, profileData);
           }
 
           setCurrentUserProfile({
             uid: firebaseUser.uid,
-            name: userData?.name || 'User',
-            method: userData?.method || 'email',
-            referralCode: userData?.referralCode,
-            referralCount: userData?.referralCount || 0,
-            role: userData?.role || 'user',
-            customApy: userData?.customApy
+            name: profileData.name || 'User',
+            method: profileData.method || 'email',
+            referralCode: profileData.referralCode,
+            referralCount: profileData.referralCount || 0,
+            role: profileData.role || 'user',
+            customApy: profileData.customApy
           });
-          setShowAuthModal(false);
-          setAuthSuccess(false);
+
+          // Transition
           setView('dashboard');
+          setShowAuthModal(false);
+          setIsAuthenticating(false);
+          setIsLoading(false);
         } catch (e) {
-          handleFirestoreError(e, OperationType.GET, userRef.path);
+          console.error("Profile sync fail:", e);
+          setView('dashboard');
+          setIsLoading(false);
+          setIsAuthenticating(false);
+          setShowAuthModal(false);
         }
       } else {
         setCurrentUserProfile(null);
         setView('landing');
+        setIsLoading(false);
+        setIsAuthenticating(false);
+        setShowAuthModal(false);
       }
-      setIsLoading(false);
     });
     return () => unsub();
-  }, [email]);
+  }, []);
 
   useEffect(() => {
     // Scroll and Tooltip effects
@@ -3906,27 +4377,21 @@ export default function App() {
   const handleAuthAction = async (method: 'line' | 'email' | 'google', e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setAuthError(null);
+    setIsAuthenticating(true);
+    
+    console.log("Auth Initiated:", method);
     
     try {
       if (method === 'google') {
-        const result = await loginWithGoogle();
-        if (result) {
-          setAuthSuccess(true);
-        }
+        await loginWithGoogle();
       } else if (method === 'line') {
-        setAuthSuccess(true);
-        // For demo: simulation of LINE login but using Firebase Auth Anonymous or just redirecting
-        // In real app, we would use Firebase Functions or 3rd party Line integration.
-        // Here we simulate success.
         console.log("LINE Auth Initiated...");
-        setTimeout(() => {
-          setShowAuthModal(false);
-          setAuthSuccess(false);
-        }, 1500);
+        setShowAuthModal(false);
+        setIsAuthenticating(false);
       } else {
-        // Email Auth
         if (!email || !password) {
           setAuthError(t('emailValidationErr'));
+          setIsAuthenticating(false);
           return;
         }
 
@@ -3935,10 +4400,10 @@ export default function App() {
         } else {
           await registerWithEmail(email, password);
         }
-        setAuthSuccess(true);
       }
     } catch (err: any) {
       console.error("Auth Error:", err);
+      setIsAuthenticating(false);
       let message = t('authFailedErr');
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
         message = t('authWrongPassErr');
@@ -3958,11 +4423,35 @@ export default function App() {
     firebaseLogout();
   };
 
+  const [sysSettings, setSysSettings] = useState({
+    customerServiceUrl: "",
+    customerServiceQr: "",
+    depositWalletTrc20: "TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    qrCodeTrc20: "",
+    depositWalletErc20: "0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    qrCodeErc20: "",
+    adminSecretCode: "888888",
+    faqs: [] as { q: string, a: string }[],
+    welcomeTitle: "",
+    repName: "",
+    repDesc: ""
+  });
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'system'), (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        setSysSettings(prev => ({ ...prev, ...data }));
+      }
+    });
+    return () => unsub();
+  }, []);
+
   const calculateYield = (amount: number, apy: number) => {
     // Current live yield for annual
     const annual = amount * (apy / 100);
-    // Conservative 4.5% floor for monthly simulation
-    const monthlyConservative = amount * (4.5 / 100) / 12;
+    // Conservative 8.5% floor for monthly simulation
+    const monthlyConservative = amount * (8.5 / 100) / 12;
     return { annual, monthly: monthlyConservative };
   };
 
@@ -3987,7 +4476,7 @@ export default function App() {
   }
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
         {view === 'admin' ? (
           <motion.div 
             key="admin"
@@ -3999,6 +4488,8 @@ export default function App() {
             <AdminPanelView 
               onBack={() => setView('dashboard')}
               currentLang={currentLang}
+              liveApy={liveApy}
+              sysSettings={sysSettings}
             />
           </motion.div>
         ) : view === 'dashboard' ? (
@@ -4022,6 +4513,7 @@ export default function App() {
               }}
               currentLang={currentLang}
               onLangChange={setCurrentLang}
+              sysSettings={sysSettings}
             />
           </motion.div>
         ) : (
@@ -4051,7 +4543,7 @@ export default function App() {
               </AnimatePresence>
               
               <motion.a
-                href="https://line.me/R/ti/p/@yourid"
+                href={sysSettings.customerServiceUrl || "https://line.me/R/ti/p/@yourid"}
                 target="_blank"
                 rel="noopener noreferrer"
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -4142,7 +4634,7 @@ export default function App() {
                         className="h-full bg-editorial-gold"
                       />
                     </div>
-                    <div className="text-lg md:text-xl font-black italic tracking-tighter text-editorial-highlight leading-none">4.5% - 5.2%</div>
+                    <div className="text-lg md:text-xl font-black italic tracking-tighter text-editorial-highlight leading-none">8.5% - 26.8%</div>
                   </div>
 
                   {/* Yield Calculator */}
@@ -4248,12 +4740,12 @@ export default function App() {
             <div className={`${isDetailsOpen ? 'block' : 'hidden'} md:block mt-8 md:mt-2 animate-in fade-in slide-in-from-top-4 duration-500`}>
               <SectionLabel>{t('repLabel')}</SectionLabel>
               <div className="bg-editorial-white border-l-4 border-editorial-navy p-6 italic relative mb-4 md:mb-0">
-                <p className="text-sm text-editorial-navy leading-loose mb-6 relative z-10">
-                  {t('welcomeTitle')}
+                <p className="text-sm text-editorial-navy leading-loose mb-6 relative z-10 whitespace-pre-line">
+                  {sysSettings.welcomeTitle || t('welcomeTitle')}
                 </p>
                 <div className="text-right">
                   <p className="text-[10px] md:text-xs font-bold text-editorial-navy italic">
-                    {t('representative')} <span className="font-normal opacity-60 ml-1">{t('repDesc')}</span>
+                    {sysSettings.repName || t('representative')} <span className="font-normal opacity-60 ml-1">{sysSettings.repDesc || t('repDesc')}</span>
                   </p>
                 </div>
               </div>
@@ -4291,18 +4783,30 @@ export default function App() {
           <div className="mb-10 md:mb-12">
             <SectionLabel>{t('faqLabel')}</SectionLabel>
             <div className="border-t border-editorial-border">
-              <FAQItem 
-                q={t('faqBankQ')}
-                a={t('faqBankA')}
-              />
-              <FAQItem 
-                q={t('faqRiskQ')}
-                a={t('faqRiskA')}
-              />
-              <FAQItem 
-                q={t('faqPlatformQ')}
-                a={t('faqPlatformA')}
-              />
+              {sysSettings.faqs && sysSettings.faqs.length > 0 ? (
+                sysSettings.faqs.map((faq, i) => (
+                  <FAQItem 
+                    key={i}
+                    q={faq.q}
+                    a={faq.a}
+                  />
+                ))
+              ) : (
+                <>
+                  <FAQItem 
+                    q={t('faqBankQ')}
+                    a={t('faqBankA')}
+                  />
+                  <FAQItem 
+                    q={t('faqRiskQ')}
+                    a={t('faqRiskA')}
+                  />
+                  <FAQItem 
+                    q={t('faqPlatformQ')}
+                    a={t('faqPlatformA')}
+                  />
+                </>
+              )}
             </div>
           </div>
 
@@ -4367,60 +4871,68 @@ export default function App() {
                       exit={{ scale: 0.9, opacity: 0, y: 20 }}
                       className="relative bg-white w-full max-w-[340px] p-6 rounded shadow-2xl z-10"
                     >
+                      <div className="flex justify-between items-start mb-4">
+                        <h2 className="text-xl font-black italic tracking-tighter uppercase leading-none">
+                          {isLoginMode ? t('login') : t('register')}
+                        </h2>
+                        <button 
+                          onClick={() => {
+                            setShowAuthModal(false);
+                            setAuthError(null);
+                          }}
+                          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                      
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-6 leading-relaxed">
+                        {t('welcome')}
+                      </p>
+                      
+                      {authError && (
+                        <div className="mb-4 p-3 bg-red-50 border-l-2 border-red-500 text-red-600 text-[10px] font-bold">
+                          {authError}
+                        </div>
+                      )}
+
                       {authSuccess ? (
                         <div className="text-center py-8">
-                          <div className="w-16 h-16 bg-green-50 text-editorial-green rounded-full flex items-center justify-center mx-auto mb-4">
-                            <ShieldCheck size={32} />
-                          </div>
-                          <h3 className="text-lg font-black mb-2 flex items-center justify-center gap-2 italic uppercase">
-                             {t('authSuccess')}
-                          </h3>
+                          <motion.div 
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                          >
+                            <CheckCircle size={32} className="text-editorial-green" />
+                          </motion.div>
+                          <h3 className="text-lg font-black uppercase tracking-widest text-editorial-navy mb-2">{t('authSuccess')}</h3>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t('authenticated')}</p>
                         </div>
                       ) : (
-                        <>
-                          <div className="flex justify-between items-start mb-4">
-                            <h2 className="text-xl font-black italic tracking-tighter uppercase leading-none">
-                              {isLoginMode ? t('login') : t('register')}
-                            </h2>
-                            <button 
-                              onClick={() => {
-                                setShowAuthModal(false);
-                                setAuthError(null);
-                              }}
-                              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                            >
-                              <X size={18} />
-                            </button>
-                          </div>
-                          
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-6 leading-relaxed">
-                            {t('welcome')}
-                          </p>
-                          
-                          {authError && (
-                            <div className="mb-4 p-3 bg-red-50 border-l-2 border-red-500 text-red-600 text-[10px] font-bold">
-                              {authError}
-                            </div>
-                          )}
-
-                          <div className="space-y-3 mb-6">
+                        <div className="space-y-3 mb-6">
                             {/* Google Login - Real Firebase integration */}
                             <button 
                               onClick={() => handleAuthAction('google')}
-                              className="w-full bg-white border border-gray-200 py-3 rounded-sm shadow-sm flex items-center justify-center gap-3 active:scale-95 transition-all group"
+                              disabled={isAuthenticating}
+                              className="w-full bg-white border border-gray-200 py-3 rounded-sm shadow-sm flex items-center justify-center gap-3 active:scale-95 transition-all group disabled:opacity-50 disabled:cursor-wait"
                             >
                               <div className="bg-editorial-navy/5 p-1 rounded-full group-hover:bg-editorial-gold/10 transition-colors">
                                 <Globe size={16} className="text-editorial-navy group-hover:text-editorial-gold transition-colors" />
                               </div>
-                              <span className="text-[11px] font-black uppercase tracking-widest">{t('googleLogin')}</span>
+                              <span className="text-[11px] font-black uppercase tracking-widest">
+                                {isAuthenticating ? '...' : t('googleLogin')}
+                              </span>
                             </button>
 
                             <button 
                               onClick={() => handleAuthAction('line')}
-                              className="w-full bg-editorial-green text-white py-3 rounded-sm shadow-[0_4px_14px_rgba(6,199,85,0.2)] flex items-center justify-center gap-3 active:scale-95 transition-all"
+                              disabled={isAuthenticating}
+                              className="w-full bg-editorial-green text-white py-3 rounded-sm shadow-[0_4px_14px_rgba(6,199,85,0.2)] flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-wait"
                             >
                               <MessageCircle size={16} />
-                              <span className="text-[11px] font-black uppercase tracking-widest">{t('lineLogin')}</span>
+                              <span className="text-[11px] font-black uppercase tracking-widest">
+                                {isAuthenticating ? '...' : t('lineLogin')}
+                              </span>
                             </button>
 
                             <div className="flex items-center gap-4 py-1.5">
@@ -4469,8 +4981,16 @@ export default function App() {
                               
                               <button 
                                 type="submit"
-                                className="w-full border-2 border-editorial-navy py-3 rounded-sm text-editorial-navy font-black text-[11px] uppercase tracking-widest hover:bg-editorial-navy hover:text-white transition-all active:scale-90"
+                                disabled={isAuthenticating}
+                                className="w-full border-2 border-editorial-navy py-3 rounded-sm text-editorial-navy font-black text-[11px] uppercase tracking-widest hover:bg-editorial-navy hover:text-white transition-all active:scale-90 disabled:opacity-50 disabled:cursor-wait flex items-center justify-center gap-2"
                               >
+                                {isAuthenticating && (
+                                  <motion.div 
+                                    animate={{ rotate: 360 }}
+                                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                    className="w-3 h-3 border-2 border-current border-t-transparent rounded-full"
+                                  />
+                                )}
                                 {isLoginMode ? t('login') : t('register')}
                               </button>
 
@@ -4485,6 +5005,7 @@ export default function App() {
                               </div>
                             </form>
                           </div>
+                      )}
                           
                           <div className="flex items-center justify-center gap-2 opacity-40">
                             <Shield size={12} />
@@ -4492,15 +5013,17 @@ export default function App() {
                               {t('securityFooter')}
                             </p>
                           </div>
-                        </>
-                      )}
-                    </motion.div>
+                        </motion.div>
                   </div>
                 )}
               </AnimatePresence>
           </div>
         </motion.div>
       )}
+    </AnimatePresence>
+  );
+}
+
     </AnimatePresence>
   );
 }
