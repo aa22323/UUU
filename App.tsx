@@ -4527,41 +4527,43 @@ export default function App() {
             <div className="min-h-screen bg-editorial-white font-sans text-editorial-navy selection:bg-editorial-gold selection:text-white relative">
               {/* ... existing landing content ... */}
             {/* Floating Consultation Button */}
-            <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-2">
-              <AnimatePresence>
-                {showTooltip && (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.8, x: 10 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, x: 10 }}
-                    className="bg-editorial-navy text-white text-[10px] py-2 px-4 rounded-full shadow-xl font-bold mb-2 relative whitespace-nowrap"
-                  >
-                    {t('settings')}
-                    <div className="absolute w-2 h-2 bg-editorial-navy rotate-45 -bottom-1 right-6"></div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              
-              <motion.a
-                href={sysSettings.customerServiceUrl || "https://line.me/R/ti/p/@yourid"}
-                target="_blank"
-                rel="noopener noreferrer"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="w-14 h-14 bg-editorial-green rounded-full flex items-center justify-center shadow-[0_4px_10px_rgba(6,199,85,0.15)] md:w-16 md:h-16"
-              >
-                <div className="relative">
-                  <motion.div 
-                    animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                    className="absolute inset-0 bg-white rounded-full"
-                  />
-                  <MessageCircle className="w-8 h-8 md:w-10 md:h-10 text-white relative z-10" />
-                </div>
-              </motion.a>
-            </div>
+            {sysSettings.customerServiceUrl && (
+              <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-2">
+                <AnimatePresence>
+                  {showTooltip && (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.8, x: 10 }}
+                      animate={{ opacity: 1, scale: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, x: 10 }}
+                      className="bg-editorial-navy text-white text-[10px] py-2 px-4 rounded-full shadow-xl font-bold mb-2 relative whitespace-nowrap"
+                    >
+                      {t('customerService')}
+                      <div className="absolute w-2 h-2 bg-editorial-navy rotate-45 -bottom-1 right-6"></div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                
+                <motion.a
+                  href={sysSettings.customerServiceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="w-14 h-14 bg-editorial-green rounded-full flex items-center justify-center shadow-[0_4px_10px_rgba(6,199,85,0.15)] md:w-16 md:h-16"
+                >
+                  <div className="relative">
+                    <motion.div 
+                      animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
+                      transition={{ repeat: Infinity, duration: 2 }}
+                      className="absolute inset-0 bg-white rounded-full"
+                    />
+                    <MessageCircle className="w-8 h-8 md:w-10 md:h-10 text-white relative z-10" />
+                  </div>
+                </motion.a>
+              </div>
+            )}
 
             {/* Header - Optimized Height */}
             <header className="h-[50px] md:h-[60px] bg-white border-b-2 border-editorial-navy px-4 md:px-10 flex items-center justify-between sticky top-0 z-50">
@@ -5022,6 +5024,3 @@ export default function App() {
   );
 }
 
-    </AnimatePresence>
-  );
-}
