@@ -4087,11 +4087,7 @@ const DashboardView = ({
                       </div>
                     </div>
 
-                    <div className="bg-red-50 p-4 rounded border-l-4 border-red-500">
-                      <p className="text-[9px] text-red-700 font-bold leading-relaxed">
-                        {t('memoWarning')}
-                      </p>
-                    </div>
+
 
                     <div className="pt-2 space-y-3">
                       <button 
@@ -5096,3 +5092,4 @@ export default function App() {
     </AnimatePresence>
   );
 }
+
