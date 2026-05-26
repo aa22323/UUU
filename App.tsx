@@ -276,7 +276,7 @@ const TRANSLATIONS: Record<string, any> = {
     prepLab: "PREP LAB",
     assetDefenseLabel: "Digital Asset Defense",
     liveIndicator: "LIVE",
-    verAlphaCode: "VER 0.8.2 ALPHA EDITION",
+    verAlphaCode: "VER 1.0.0 OFFICIAL STABLE",
     allRightsReserved: "ALL RIGHTS RESERVED",
     kizunaLogoFull: "Kizuna Digital Asset Defense Lab",
     repNameSato: "佐藤 健二郎",
@@ -522,7 +522,7 @@ const TRANSLATIONS: Record<string, any> = {
     prepLab: "PREP LAB",
     assetDefenseLabel: "Digital Asset Defense",
     liveIndicator: "LIVE",
-    verAlphaCode: "VER 0.8.2 ALPHA EDITION",
+    verAlphaCode: "VER 1.0.0 OFFICIAL STABLE",
     allRightsReserved: "ALL RIGHTS RESERVED",
     kizunaLogoFull: "Kizuna Digital Asset Defense Lab",
     repNameSato: "Kenjiro Sato",
@@ -808,7 +808,7 @@ const TRANSLATIONS: Record<string, any> = {
     prepLab: "PREP LAB",
     assetDefenseLabel: "数字资产防御",
     liveIndicator: "LIVE",
-    verAlphaCode: "VER 0.8.2 ALPHA EDITION",
+    verAlphaCode: "VER 1.0.0 OFFICIAL STABLE",
     allRightsReserved: "ALL RIGHTS RESERVED",
     kizunaLogoFull: "KIZUNA 数字资产防御实验室",
     repNameSato: "佐藤 健二郎",
@@ -1304,7 +1304,7 @@ const TRANSLATIONS: Record<string, any> = {
     prepLab: "PREP LAB",
     assetDefenseLabel: "डिजिटल संपत्ति रक्षा",
     liveIndicator: "LIVE",
-    verAlphaCode: "VER 0.8.2 ALPHA EDITION",
+    verAlphaCode: "VER 1.0.0 OFFICIAL STABLE",
     allRightsReserved: "सर्वाधिकार सुरक्षित",
     kizunaLogoFull: "Kizuna डिजिटल एसेट डिफेंस लैब",
     repNameSato: "केंजीरो सातो",
@@ -3410,7 +3410,7 @@ const DashboardView = ({
           >
             <span>{t('logout')}</span>
           </button>
-          <p className="text-center text-[9px] text-gray-300 font-bold mt-4 uppercase tracking-[0.2em]">Version 0.8.2 Alpha</p>
+          <p className="text-center text-[9px] text-gray-300 font-bold mt-4 uppercase tracking-[0.2em]">VER 1.0.0 OFFICIAL STABLE</p>
         </div>
       </div>
     );
@@ -4595,7 +4595,7 @@ export default function App() {
                     {t('register')} / {t('login')}
                   </button>
                 )}
-                <span className="hidden lg:block text-gray-400 font-mono text-[9px]">VER 0.8.2 ALPHA</span>
+                <span className="hidden lg:block text-gray-400 font-mono text-[9px]">VER 1.0.0 OFFICIAL STABLE</span>
               </div>
             </header>
 
@@ -4846,7 +4846,7 @@ export default function App() {
               </div>
               <span className="text-[10px] font-black uppercase tracking-[0.2em]">{t('kizunaLogoFull')}</span>
             </div>
-            <span className="text-[8px] text-gray-400 font-mono tracking-widest leading-none">VER 0.8.2 ALPHA EDITION</span>
+            <span className="text-[8px] text-gray-400 font-mono tracking-widest leading-none">{t('verAlphaCode')}</span>
           </div>
           <p className="text-[9px] text-editorial-gray font-bold tracking-widest opacity-60 leading-none uppercase">
             &copy; {new Date().getFullYear()} KIZUNA LAB. {t('allRightsReserved')}
@@ -5023,4 +5023,5 @@ export default function App() {
     </AnimatePresence>
   );
 }
+
 
