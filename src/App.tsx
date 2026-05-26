@@ -169,7 +169,7 @@ const TRANSLATIONS: Record<string, any> = {
     faqLabel: "よくある質問",
     demoDeposit: "デモ資金を入金 (10,000 USDT)",
     smallTest: "少額テスト (1,240 USDT)",
-    addDepositTest: "追加入金テスト (5,000 USDT)",
+    addDepositTest: "今すぐ入金",
     addDeposit: "追加預入",
     withdrawApply: "出金申請",
     withdrawNote: "※最短即日、ご指定のウォレットへ払い戻し可能です",
@@ -207,8 +207,8 @@ const TRANSLATIONS: Record<string, any> = {
     inviteCodeLabel: "专属邀请码 / Referral Code",
     inviteNote: "このコードを友達の登録時に入力してもらうことで、両者に報酬が付与されます。",
     inviteRemaining: "あと{n}人の招待で利率+0.5%アップ",
-    depositTipNew: "「まずは1,000円分から。少額で安全性をお試しください。」",
-    depositTipOld: "「追加預入も1,000円から。いつでも安心・気軽な運用を。」",
+    depositTipNew: "BlackRockによって保護されています。\nいつでも安全、安定、そしてフレキシブルに。",
+    depositTipOld: "BlackRockによって保護されています。\nいつでも安全、安定、そしてフレキシブルに。",
     accrued: "収益入帳",
     googleLogin: "Googleでログイン",
     lineLogin: "LINEで登録 / ログイン",
@@ -420,7 +420,7 @@ const TRANSLATIONS: Record<string, any> = {
     faqLabel: "FAQ",
     demoDeposit: "Deposit Demo (10,000 USDT)",
     smallTest: "Small Test (1,240 USDT)",
-    addDepositTest: "Add Deposit Test (5,000 USDT)",
+    addDepositTest: "DEPOSIT NOW",
     addDeposit: "Add Deposit",
     withdrawApply: "Apply Withdrawal",
     withdrawNote: "* Refund to specified wallet possible within same day.",
@@ -492,8 +492,8 @@ const TRANSLATIONS: Record<string, any> = {
     inviteCodeLabel: "Referral Code",
     inviteNote: "Enter this code at registration to grant rewards to both parties.",
     inviteRemaining: "{n} more invites to increase APY by +0.5%",
-    depositTipNew: "Start with as little as 1,000 JPY. Test the safety with a small amount.",
-    depositTipOld: "Additional deposits from 1,000 JPY. Safe and flexible anytime.",
+    depositTipNew: "Secured by BlackRock.\nSafe, stable and flexible anytime.",
+    depositTipOld: "Secured by BlackRock.\nSafe, stable and flexible anytime.",
     accrued: "Accrued",
     googleLogin: "Log in with Google",
     lineLogin: "Register / Log in with LINE",
@@ -672,7 +672,10 @@ const TRANSLATIONS: Record<string, any> = {
     'adminCodeNote': "* Yönetici Paneli için ikincil doğrulama kodu (6 hane önerilir).",
     'verify': "Doğrula",
     withdrawHistory: "Çekim Geçmişi",
-    dailyEarning: "Günlük Kazanç"
+    dailyEarning: "Günlük Kazanç",
+    depositTipNew: "BlackRock güvencesiyle.\nHer zaman güvenli, istikrarlı ve esnek.",
+    depositTipOld: "BlackRock güvencesiyle.\nHer zaman güvenli, istikrarlı ve esnek.",
+    addDepositTest: "ŞİMDİ YATIR"
   },
   cn: {
     heroTitle: "「抵御日元贬值与通胀，\n睿智守护\n您的重要资产。」",
@@ -874,7 +877,10 @@ const TRANSLATIONS: Record<string, any> = {
     productsLabel: "理财产品",
     positionsLabel: "持仓管理",
     infoLabel: "公告资讯",
-    dailyEarning: "每日收益"
+    dailyEarning: "每日收益",
+    depositTipNew: "由贝莱德 (BlackRock) 提供安全保障。\n随时安全、稳定、灵活。",
+    depositTipOld: "由贝莱德 (BlackRock) 提供安全保障。\n随时安全、稳定、灵活。",
+    addDepositTest: "立即充值"
   },
   tw: {
     heroTitle: "「抵禦日元貶值與通脹，\n睿智守護\n您的重要資產。」",
@@ -999,7 +1005,10 @@ const TRANSLATIONS: Record<string, any> = {
     'adminCodeNote': "* 設置進入管理後台的二次驗證代碼（建議 6 位數字）。",
     'verify': "驗證進入",
     withdrawHistory: "提現歷史",
-    dailyEarning: "每日收益"
+    dailyEarning: "每日收益",
+    depositTipNew: "由貝萊德 (BlackRock) 提供安全保障。\n隨時安全、穩定、靈活。",
+    depositTipOld: "由貝萊德 (BlackRock) 提供安全保障。\n隨時安全、穩定、靈活。",
+    addDepositTest: "立即充值"
   },
   kr: {
     heroTitle: "「엔저·인플레이션으로부터,\n소중한 자산을\n현명하게 지키다.」",
@@ -1092,7 +1101,7 @@ const TRANSLATIONS: Record<string, any> = {
     securityFooter: "등록하신 정보는 최신 암호화 기술로 엄격히 보호됩니다",
     demoDeposit: "데모 자금 입금 (10,000 USDT)",
     smallTest: "소액 테스트 (1,240 USDT)",
-    addDepositTest: "추가 입금 테스트 (5,000 USDT)",
+    addDepositTest: "지금 입금",
     addDeposit: "추가 예치",
     withdrawApply: "출금 신청",
     withdrawNote: "※ 최단 당일, 지정하신 지갑으로 환불 가능합니다",
@@ -1130,8 +1139,8 @@ const TRANSLATIONS: Record<string, any> = {
     inviteCodeLabel: "전용 초대 코드 / Referral Code",
     inviteNote: "이 코드를 친구가 등록할 때 입력하면 양측 모두에게 보상이 지급됩니다.",
     inviteRemaining: "앞으로 {n}명 초대 시 이율 +0.5% 상승",
-    depositTipNew: "「우선 1,000엔 상당부터. 소액으로 안전성을 테스트해 보십시오.」",
-    depositTipOld: "「추가 예치도 1,000엔부터. 언제든지 안심하고 부담 없는 운용을.」",
+    depositTipNew: "BlackRock에 의해 안전하게 보호됩니다.\n언제나 안전하고 안정적이며 유연합니다.",
+    depositTipOld: "BlackRock에 의해 안전하게 보호됩니다.\n언제나 안전하고 안정적이며 유연합니다.",
     accrued: "수익 발생",
     googleLogin: "Google로 로그인",
     lineLogin: "LINE으로 등록 / 로그인",
@@ -1281,7 +1290,10 @@ const TRANSLATIONS: Record<string, any> = {
     'adminCodeNote': "* Дополнительный код подтверждения для панели администратора (рекомендуется 6 цифр).",
     'verify': "Проверить",
     withdrawHistory: "История выводов",
-    dailyEarning: "Ежедневное начисление"
+    dailyEarning: "Ежедневное начисление",
+    depositTipNew: "Обеспечено BlackRock.\nБезопасно, стабильно и доступно в любое время.",
+    depositTipOld: "Обеспечено BlackRock.\nБезопасно, стабильно и доступно в любое время.",
+    addDepositTest: "ПОПОЛНИТЬ СЕЙЧАС"
   },
   hi: {
     heroTitle: "अपनी संपत्ति को\nमुद्रास्फीति से\nचतुराई से बचाएं।",
@@ -1376,7 +1388,10 @@ const TRANSLATIONS: Record<string, any> = {
     initialDepositLabel: "प्रारंभिक जमा",
     inviteLineMsg: "【KIZUNA PREP LAB】अगली पीढ़ी के USDT लाभ के साथ संपत्ति की रक्षा करें। मेरे इनवाइट कोड का उपयोग करें!\nइनवाइट कोड: {code}\nयहाँ जुड़ें: {url}",
     withdrawHistory: "निकासी इतिहास",
-    dailyEarning: "दैनिक आय"
+    dailyEarning: "दैनिक आय",
+    depositTipNew: "BlackRock द्वारा सुरक्षा।\nहमेशा सुरक्षित, स्थिर और लचीला।",
+    depositTipOld: "BlackRock द्वारा सुरक्षा।\nहमेशा सुरक्षित, स्थिर और लचीला।",
+    addDepositTest: "अभी जमा करें"
   },
   vn: {
     'adminAuthTitle': "Xác thực quản trị viên",
@@ -3032,7 +3047,7 @@ const DashboardView = ({
           <ShieldCheck size={14} />
           {isNewUser ? t('readMsg') : t('dashboard')}
         </h3>
-        <p className="text-white font-bold text-lg italic leading-tight mb-3">
+        <p className="text-white font-bold text-lg italic leading-tight mb-3 whitespace-pre-line">
           {isNewUser 
             ? t('depositTipNew')
             : t('depositTipOld')}
