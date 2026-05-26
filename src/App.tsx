@@ -303,6 +303,7 @@ const TRANSLATIONS: Record<string, any> = {
     userListTitle: "ユーザーリスト",
     searchUserPlaceholder: "ユーザーを検索...",
     userInfoHeader: "ユーザー情報",
+    remarkHeader: "担当者・備考",
     principalHeader: "本金 (USDT)",
     earningsHeader: "収益 (USDT)",
     apyHeader: "利率 (APY)",
@@ -549,6 +550,7 @@ const TRANSLATIONS: Record<string, any> = {
     userListTitle: "User List",
     searchUserPlaceholder: "Search users...",
     userInfoHeader: "User Info",
+    remarkHeader: "Remark / Staff",
     principalHeader: "Principal (USDT)",
     earningsHeader: "Earnings (USDT)",
     apyHeader: "Yield (APY)",
@@ -573,7 +575,10 @@ const TRANSLATIONS: Record<string, any> = {
     statusCompleted: "Completed",
     statusFailed: "Rejected",
     initialDepositLabel: "Initial Deposit",
-    inviteLineMsg: "【KIZUNA PREP LAB】Protect assets with next-gen USDT yield. Use my invite code for a yield boost!\nInvite Code: {code}\nJoin here: {url}"
+    inviteLineMsg: "【KIZUNA PREP LAB】Protect assets with next-gen USDT yield. Use my invite code for a yield boost!\nInvite Code: {code}\nJoin here: {url}",
+    productsLabel: "Products",
+    positionsLabel: "Positions",
+    infoLabel: "Announcements"
   },
   tr: {
     heroTitle: "Varlıklarınızı\nEnflasyondan\nZekice Koruyun.",
@@ -835,6 +840,7 @@ const TRANSLATIONS: Record<string, any> = {
     userListTitle: "用户列表",
     searchUserPlaceholder: "搜索用户...",
     userInfoHeader: "用户信息",
+    remarkHeader: "备注负责人",
     principalHeader: "本金 (USDT)",
     earningsHeader: "收益 (USDT)",
     apyHeader: "利率 (APY)",
@@ -859,7 +865,10 @@ const TRANSLATIONS: Record<string, any> = {
     statusCompleted: "已完成",
     statusFailed: "已驳回",
     initialDepositLabel: "首次充值",
-    inviteLineMsg: "【KIZUNA PREP LAB】通过下一代 USDT 收益保护资产。使用我的邀请码即可提升收益率！\n邀请码：{code}\n点击加入：{url}"
+    inviteLineMsg: "【KIZUNA PREP LAB】通过下一代 USDT 收益保护资产。使用我的邀请码即可提升收益率！\n邀请码：{code}\n点击加入：{url}",
+    productsLabel: "理财产品",
+    positionsLabel: "持仓管理",
+    infoLabel: "公告资讯"
   },
   tw: {
     heroTitle: "「抵禦日元貶值與通脹，\n睿智守護\n您的重要資產。」",
@@ -1331,6 +1340,7 @@ const TRANSLATIONS: Record<string, any> = {
     userListTitle: "उपयोगकर्ता सूची",
     searchUserPlaceholder: "उपयोगकर्ता खोजें...",
     userInfoHeader: "उपयोगकर्ता जानकारी",
+    remarkHeader: "टिप्पणी / कर्मचारी",
     principalHeader: "मूलधन (USDT)",
     earningsHeader: "आय (USDT)",
     apyHeader: "पैदावार (APY)",
@@ -1649,7 +1659,7 @@ const AdminPanelView = ({
   sysSettings: any
 }) => {
   const t = (key: string, params?: Record<string, any>) => {
-    let text = TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS.en[key] || key;
+    let text = TRANSLATIONS.cn?.[key] || TRANSLATIONS.en?.[key] || key;
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         text = text.replace(`{${k}}`, String(v));
@@ -1660,6 +1670,7 @@ const AdminPanelView = ({
 
   const [activeSubView, setActiveSubView] = useState<'dashboard' | 'products' | 'finance' | 'positions' | 'members' | 'info' | 'settings'>('dashboard');
   const [users, setUsers] = useState<any[]>([]);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
   const [pendingTransactions, setPendingTransactions] = useState<any[]>([]);
   const [financeTab, setFinanceTab] = useState<'pending' | 'history'>('pending');
   const [allTransactions, setAllTransactions] = useState<any[]>([]);
@@ -1857,7 +1868,8 @@ const AdminPanelView = ({
       await setDoc(userRef, {
         name: editingUser.name,
         customApy: editingUser.customApy ? parseFloat(editingUser.customApy.toString()) : null,
-        role: editingUser.role
+        role: editingUser.role,
+        remark: editingUser.remark || ""
       }, { merge: true });
       
       // 2. Settlement & Portfolio Update
@@ -1917,7 +1929,8 @@ const AdminPanelView = ({
         role: editingUser.role,
         customApy: editingUser.customApy,
         principalBalance: principalNum,
-        totalEarnings: finalEarnings 
+        totalEarnings: finalEarnings,
+        remark: editingUser.remark || ""
       } : u));
       
       alert(currentLang === 'hi' ? "उपयोगकर्ता विवरण सफलतापूर्वक सहेजे गए" : currentLang === 'jp' ? "ユーザー設定が保存されました" : "User settings saved successfully");
@@ -2217,72 +2230,98 @@ const AdminPanelView = ({
 
 
         {/* Member Management View */}
-        {(activeSubView === 'members' || activeSubView === 'positions') && (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-              <h3 className="text-sm font-black uppercase tracking-widest">{t('userListTitle')} ({users.length})</h3>
-              <div className="flex gap-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                  <input type="text" placeholder={t('searchUserPlaceholder')} className="bg-white border rounded-xl pl-9 pr-4 py-2 text-xs focus:ring-1 focus:ring-editorial-navy outline-none" />
+        {(activeSubView === 'members' || activeSubView === 'positions') && (() => {
+          const filteredUsers = users.filter(user => {
+            const query = userSearchQuery.toLowerCase();
+            return (
+              (user.name?.toLowerCase() || '').includes(query) ||
+              (user.email?.toLowerCase() || user.uid?.toLowerCase() || '').includes(query) ||
+              (user.remark?.toLowerCase() || '').includes(query)
+            );
+          });
+          return (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                <h3 className="text-sm font-black uppercase tracking-widest">{t('userListTitle')} ({filteredUsers.length} / {users.length})</h3>
+                <div className="flex gap-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                    <input 
+                      type="text" 
+                      placeholder={t('searchUserPlaceholder')} 
+                      value={userSearchQuery}
+                      onChange={e => setUserSearchQuery(e.target.value)}
+                      className="bg-white border rounded-xl pl-9 pr-4 py-2 text-xs focus:ring-1 focus:ring-editorial-navy outline-none" 
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-gray-50/50 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  <tr>
-                    <th className="px-6 py-4">{t('userInfoHeader')}</th>
-                    <th className="px-6 py-4">{t('principalHeader')}</th>
-                    <th className="px-6 py-4">{t('earningsHeader')}</th>
-                    <th className="px-6 py-4">{t('apyHeader')}</th>
-                    <th className="px-6 py-4">{t('roleHeader')}</th>
-                    <th className="px-6 py-4 text-right">{t('actionHeader')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {users.map(user => (
-                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-xs text-editorial-navy">{user.name?.charAt(0)}</div>
-                          <div>
-                            <div className="text-xs font-black">{user.name}</div>
-                            <div className="text-[10px] text-gray-400 font-bold">{user.email || user.uid}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-xs font-black italic tracking-tight text-editorial-navy">
-                        <AdminUserBalance user={user} type="principal" defaultApy={liveApy} />
-                      </td>
-                      <td className="px-6 py-4 text-xs font-black italic tracking-tight">
-                        <AdminUserBalance user={user} type="earnings" defaultApy={liveApy} />
-                      </td>
-                      <td className="px-6 py-4 font-black">
-                         <span className={`text-[10px] px-2 py-0.5 rounded-full ${user.customApy ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-gray-50 text-gray-400'}`}>
-                           {user.customApy ? `${user.customApy}% (${t('fixedRate')})` : t('sysDefault')}
-                         </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${user.role === 'admin' ? 'bg-editorial-navy text-white' : 'bg-gray-100 text-gray-400'}`}>
-                          {user.role || 'user'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button 
-                          onClick={() => setEditingUser({ ...user })}
-                          className="p-2 text-gray-400 hover:text-[#e60012] transition-colors"
-                        >
-                          <Edit size={16} />
-                        </button>
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-gray-50/50 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    <tr>
+                      <th className="px-6 py-4">{t('userInfoHeader')}</th>
+                      <th className="px-6 py-4">{t('remarkHeader')}</th>
+                      <th className="px-6 py-4">{t('principalHeader')}</th>
+                      <th className="px-6 py-4">{t('earningsHeader')}</th>
+                      <th className="px-6 py-4">{t('apyHeader')}</th>
+                      <th className="px-6 py-4">{t('roleHeader')}</th>
+                      <th className="px-6 py-4 text-right">{t('actionHeader')}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {filteredUsers.map(user => (
+                      <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-xs text-editorial-navy">{user.name?.charAt(0)}</div>
+                            <div>
+                              <div className="text-xs font-black">{user.name}</div>
+                              <div className="text-[10px] text-gray-400 font-bold">{user.email || user.uid}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          {user.remark ? (
+                            <span className="text-[11px] font-black text-gray-600 bg-gray-100 px-2.5 py-1 rounded-lg border border-gray-200/50 inline-block">
+                              {user.remark}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300 text-xs font-bold">—</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-xs font-black italic tracking-tight text-editorial-navy">
+                          <AdminUserBalance user={user} type="principal" defaultApy={liveApy} />
+                        </td>
+                        <td className="px-6 py-4 text-xs font-black italic tracking-tight">
+                          <AdminUserBalance user={user} type="earnings" defaultApy={liveApy} />
+                        </td>
+                        <td className="px-6 py-4 font-black">
+                           <span className={`text-[10px] px-2 py-0.5 rounded-full ${user.customApy ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-gray-50 text-gray-400'}`}>
+                             {user.customApy ? `${user.customApy}% (${t('fixedRate')})` : t('sysDefault')}
+                           </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${user.role === 'admin' ? 'bg-editorial-navy text-white' : 'bg-gray-100 text-gray-400'}`}>
+                            {user.role || 'user'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button 
+                            onClick={() => setEditingUser({ ...user })}
+                            className="p-2 text-gray-400 hover:text-[#e60012] transition-colors"
+                          >
+                            <Edit size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* System Settings View */}
         {activeSubView === 'settings' && (
@@ -2371,7 +2410,7 @@ const AdminPanelView = ({
 
                 <div>
                   <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-3">
-                    {TRANSLATIONS[currentLang]?.adminCodeSetting || "Admin Access Code"}
+                    {t('adminCodeSetting')}
                   </label>
                   <input 
                     type="text"
@@ -2381,7 +2420,7 @@ const AdminPanelView = ({
                     placeholder="888888"
                   />
                   <p className="text-[9px] text-gray-400 font-bold mt-2 italic">
-                    {TRANSLATIONS[currentLang]?.adminCodeNote || "* Use this code to verify admin entry."}
+                    {t('adminCodeNote')}
                   </p>
                 </div>
               </div>
@@ -2406,7 +2445,7 @@ const AdminPanelView = ({
               <h3 className="text-sm font-black uppercase tracking-widest mb-6">{t('repLabel')}</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Welcome Title / Message</label>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">前言致辞标题 / 欢迎语内容</label>
                   <textarea 
                     value={systemSettings.welcomeTitle}
                     onChange={e => setSystemSettings({...systemSettings, welcomeTitle: e.target.value})}
@@ -2416,7 +2455,7 @@ const AdminPanelView = ({
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Representative Name</label>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">筹备室代表人姓名/名称</label>
                     <input 
                       type="text"
                       value={systemSettings.repName}
@@ -2426,7 +2465,7 @@ const AdminPanelView = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Representative Description</label>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">筹备室代表人头衔/描述</label>
                     <input 
                       type="text"
                       value={systemSettings.repDesc}
@@ -2449,7 +2488,7 @@ const AdminPanelView = ({
                   })}
                   className="bg-black text-white text-[10px] font-black px-4 py-2 rounded-lg uppercase tracking-widest flex items-center gap-2"
                 >
-                  <Plus size={14} /> Add FAQ
+                  <Plus size={14} /> 添加常见问题 (FAQ)
                 </button>
               </div>
 
@@ -2468,7 +2507,7 @@ const AdminPanelView = ({
                     </button>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Question ({idx + 1})</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">问题 (Question {idx + 1})</label>
                         <input 
                           type="text"
                           value={faq.q}
@@ -2478,11 +2517,11 @@ const AdminPanelView = ({
                             setSystemSettings({ ...systemSettings, faqs: newFaqs });
                           }}
                           className="w-full bg-white border border-gray-200 p-4 rounded-xl text-xs font-bold"
-                          placeholder="Why is JPY yield low?"
+                          placeholder="例如：为什么日元利率这么低？"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Answer ({idx + 1})</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">回答内容 (Answer {idx + 1})</label>
                         <textarea 
                           value={faq.a}
                           onChange={e => {
@@ -2491,7 +2530,7 @@ const AdminPanelView = ({
                             setSystemSettings({ ...systemSettings, faqs: newFaqs });
                           }}
                           className="w-full bg-white border border-gray-200 p-4 rounded-xl text-xs font-bold min-h-[100px]"
-                          placeholder="Because interest rates in Japan are near zero..."
+                          placeholder="例如：因为日本长期处于接近零利率的低息环境..."
                         />
                       </div>
                     </div>
@@ -2500,7 +2539,7 @@ const AdminPanelView = ({
 
                 {(!systemSettings.faqs || systemSettings.faqs.length === 0) && (
                   <div className="text-center py-10 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-gray-400 text-xs font-bold italic">
-                    No custom FAQs defined. Default translations will be used.
+                    暂未配置自定义常见问题。系统将默认使用介绍页面的预设 FAQ 数据。
                   </div>
                 )}
               </div>
@@ -2508,9 +2547,9 @@ const AdminPanelView = ({
               <div className="mt-8 pt-8 border-t">
                 <button 
                   onClick={handleSaveSettings}
-                  className="w-full bg-editorial-navy text-white font-black py-4 rounded-xl text-[10px] uppercase tracking-[0.3em] active:scale-95 transition-all shadow-lg shadow-editorial-navy/10"
+                  className="w-full bg-[#e60012] hover:bg-[#e62129] text-white font-black py-4 rounded-xl text-[10px] uppercase tracking-[0.3em] active:scale-95 transition-all shadow-lg shadow-red-200/10"
                 >
-                  SAVE HOME CONTENT
+                  保存主页内容设置
                 </button>
               </div>
             </div>
@@ -2569,6 +2608,11 @@ const AdminPanelView = ({
                 <div>
                   <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">个性化利率 (单户 APY %)</label>
                   <input type="number" step="0.01" value={editingUser.customApy || ""} onChange={e => setEditingUser({...editingUser, customApy: e.target.value})} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold" placeholder="留空则使用系统全局利率" />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">备注负责人 (负责追随的员工/内部备注名称)</label>
+                  <input type="text" value={editingUser.remark || ""} onChange={e => setEditingUser({...editingUser, remark: e.target.value})} className="w-full bg-gray-50 border border-gray-100 p-4 rounded-xl text-xs font-bold focus:outline-none focus:border-[#e60012]" placeholder="例如：负责员工 Adam" />
                 </div>
               </div>
 
