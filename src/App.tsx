@@ -325,7 +325,9 @@ const TRANSLATIONS: Record<string, any> = {
     sysDefault: "システムデフォルト",
     interestEarningLabel: "利息収益",
     initialDepositLabel: "初回預入",
-    inviteLineMsg: "【KIZUNA PREP LAB】次世代USDT運用で資産を守る。今なら招待コード入力で利率アップ！\n招待コード：{code}\n参加はこちら：{url}"
+    inviteLineMsg: "【KIZUNA PREP LAB】次世代USDT運用で資産を守る。今なら招待コード入力で利率アップ！\n招待コード：{code}\n参加はこちら：{url}",
+    withdrawHistory: "出金履歴",
+    dailyEarning: "デイリー収益"
   },
   en: {
     heroTitle: "Defending Your Assets\nfrom Inflation\nIntelligently.",
@@ -578,7 +580,8 @@ const TRANSLATIONS: Record<string, any> = {
     inviteLineMsg: "【KIZUNA PREP LAB】Protect assets with next-gen USDT yield. Use my invite code for a yield boost!\nInvite Code: {code}\nJoin here: {url}",
     productsLabel: "Products",
     positionsLabel: "Positions",
-    infoLabel: "Announcements"
+    infoLabel: "Announcements",
+    dailyEarning: "Daily Earning"
   },
   tr: {
     heroTitle: "Varlıklarınızı\nEnflasyondan\nZekice Koruyun.",
@@ -667,7 +670,9 @@ const TRANSLATIONS: Record<string, any> = {
     'adminAuthError': "Hatalı kod. Lütfen tekrar deneyin.",
     'adminCodeSetting': "Yönetici Erişim Kodu",
     'adminCodeNote': "* Yönetici Paneli için ikincil doğrulama kodu (6 hane önerilir).",
-    'verify': "Doğrula"
+    'verify': "Doğrula",
+    withdrawHistory: "Çekim Geçmişi",
+    dailyEarning: "Günlük Kazanç"
   },
   cn: {
     heroTitle: "「抵御日元贬值与通胀，\n睿智守护\n您的重要资产。」",
@@ -868,7 +873,8 @@ const TRANSLATIONS: Record<string, any> = {
     inviteLineMsg: "【KIZUNA PREP LAB】通过下一代 USDT 收益保护资产。使用我的邀请码即可提升收益率！\n邀请码：{code}\n点击加入：{url}",
     productsLabel: "理财产品",
     positionsLabel: "持仓管理",
-    infoLabel: "公告资讯"
+    infoLabel: "公告资讯",
+    dailyEarning: "每日收益"
   },
   tw: {
     heroTitle: "「抵禦日元貶值與通脹，\n睿智守護\n您的重要資產。」",
@@ -991,7 +997,9 @@ const TRANSLATIONS: Record<string, any> = {
     'adminAuthError': "安全代碼錯誤，請重試。",
     'adminCodeSetting': "管理後台訪問代碼",
     'adminCodeNote': "* 設置進入管理後台的二次驗證代碼（建議 6 位數字）。",
-    'verify': "驗證進入"
+    'verify': "驗證進入",
+    withdrawHistory: "提現歷史",
+    dailyEarning: "每日收益"
   },
   kr: {
     heroTitle: "「엔저·인플레이션으로부터,\n소중한 자산을\n현명하게 지키다.」",
@@ -1182,7 +1190,9 @@ const TRANSLATIONS: Record<string, any> = {
     'adminAuthError': "코드가 올바르지 않습니다. 다시 시도하십시오.",
     'adminCodeSetting': "관리자 접속 코드",
     'adminCodeNote': "* 관리자 패널 보조 인증 코드 (6자리 권장).",
-    'verify': "인증"
+    'verify': "인증",
+    withdrawHistory: "출금 내역",
+    dailyEarning: "일일 수익"
   },
   ru: {
     heroTitle: "Защитите свои активы от инфляции с умом.",
@@ -1269,7 +1279,9 @@ const TRANSLATIONS: Record<string, any> = {
     'adminAuthError': "Неверный код. Пожалуйста, попробуйте еще раз.",
     'adminCodeSetting': "Код доступа администратора",
     'adminCodeNote': "* Дополнительный код подтверждения для панели администратора (рекомендуется 6 цифр).",
-    'verify': "Проверить"
+    'verify': "Проверить",
+    withdrawHistory: "История выводов",
+    dailyEarning: "Ежедневное начисление"
   },
   hi: {
     heroTitle: "अपनी संपत्ति को\nमुद्रास्फीति से\nचतुराई से बचाएं।",
@@ -1362,7 +1374,9 @@ const TRANSLATIONS: Record<string, any> = {
     sysDefault: "सिस्टम डिफॉल्ट",
     interestEarningLabel: "ब्याज की आय",
     initialDepositLabel: "प्रारंभिक जमा",
-    inviteLineMsg: "【KIZUNA PREP LAB】अगली पीढ़ी के USDT लाभ के साथ संपत्ति की रक्षा करें। मेरे इनवाइट कोड का उपयोग करें!\nइनवाइट कोड: {code}\nयहाँ जुड़ें: {url}"
+    inviteLineMsg: "【KIZUNA PREP LAB】अगली पीढ़ी के USDT लाभ के साथ संपत्ति की रक्षा करें। मेरे इनवाइट कोड का उपयोग करें!\nइनवाइट कोड: {code}\nयहाँ जुड़ें: {url}",
+    withdrawHistory: "निकासी इतिहास",
+    dailyEarning: "दैनिक आय"
   },
   vn: {
     'adminAuthTitle': "Xác thực quản trị viên",
@@ -5067,4 +5081,3 @@ export default function App() {
     </AnimatePresence>
   );
 }
-
