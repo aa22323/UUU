@@ -1880,7 +1880,49 @@ const AdminPanelView = ({
   const handleUpdateTransaction = async (userId: string, txId: string, status: 'completed' | 'failed') => {
     try {
       const txRef = doc(db, 'users', userId, 'transactions', txId);
-      await updateDoc(txRef, { status, updatedAt: serverTimestamp() });
+      const txSnap = await getDoc(txRef);
+      if (txSnap.exists()) {
+        const txData = txSnap.data();
+        const type = txData.type;
+        const amount = txData.amount;
+
+        // Apply status update to firestore
+        await updateDoc(txRef, { status, updatedAt: serverTimestamp() });
+
+        // Update target portfolio on completed deposit OR failed withdrawal (to refund key amount)
+        if ((status === 'completed' && type === 'deposit') || (status === 'failed' && type === 'withdrawal')) {
+          const portfolioRef = doc(db, 'users', userId, 'portfolio', 'main');
+          const pSnap = await getDoc(portfolioRef);
+          
+          let pBalance = 0;
+          let tEarnings = 0;
+          let lastUpdated = new Date();
+          
+          if (pSnap.exists()) {
+            const pData = pSnap.data();
+            pBalance = pData.principalBalance || 0;
+            tEarnings = pData.totalEarnings || 0;
+            lastUpdated = pData.lastUpdated?.toDate() || new Date();
+          }
+          
+          // Settle accrued earnings up to current moment before changing principal
+          const secondsPassed = (new Date().getTime() - lastUpdated.getTime()) / 1000;
+          if (pBalance > 0 && secondsPassed > 0) {
+            const uSnap = await getDoc(doc(db, 'users', userId));
+            const uData = uSnap.exists() ? uSnap.data() : null;
+            const customApy = uData?.customApy ? parseFloat(uData.customApy.toString()) : null;
+            const apy = customApy !== null ? customApy : liveApy;
+            const accrued = (pBalance + tEarnings) * (apy / 100 / (365 * 24 * 3600)) * secondsPassed;
+            tEarnings += accrued;
+          }
+          
+          await setDoc(portfolioRef, {
+            principalBalance: pBalance + amount,
+            totalEarnings: tEarnings,
+            lastUpdated: serverTimestamp()
+          }, { merge: true });
+        }
+      }
       setPendingTransactions(prev => prev.filter(tx => tx.id !== txId));
     } catch (err) {
       console.error("Update Tx Error:", err);
@@ -2986,39 +3028,25 @@ const DashboardView = ({
     setIsDepositing(true);
     
     try {
-      // 1. Log Transaction
+      // 1. Log Transaction with status 'pending' (requires backend approval to update portfolio balance)
       const txRef = doc(collection(db, 'users', userProfile.uid, 'transactions'));
       await setDoc(txRef, {
         type: 'deposit',
         amount: finalAmount,
-        status: 'completed',
+        status: 'pending',
         network: depositNetwork,
         timestamp: serverTimestamp()
       });
 
-      // 2. Settle accrued interest first so new funds don't get historical rates
-      const portfolioRef = doc(db, 'users', userProfile.uid, 'portfolio', 'main');
-      const snap = await getDoc(portfolioRef);
-      let currentEarnings = totalEarnings;
-      
-      if (snap.exists()) {
-        const data = snap.data();
-        const lastUpdated = data.lastUpdated?.toDate() || new Date();
-        const secondsPassed = (new Date().getTime() - lastUpdated.getTime()) / 1000;
-        
-        if (principalBalance > 0 && secondsPassed > 0) {
-          const apyFactor = liveApy / 100;
-          const accrued = principalBalance * (apyFactor / (365 * 24 * 3600)) * secondsPassed;
-          currentEarnings += accrued;
-        }
-      }
-
-      // 3. Update Balance and Earnings together
-      await setDoc(portfolioRef, {
-        principalBalance: principalBalance + finalAmount,
-        totalEarnings: currentEarnings,
-        lastUpdated: serverTimestamp()
-      }, { merge: true });
+      // Show alert depending on language
+      alert(currentLang === 'jp' 
+        ? "入金申請が送信されました。審査をお待ちください。" 
+        : currentLang === 'cn' 
+        ? "充值申请已提交，请等待管理员审核到账。" 
+        : currentLang === 'tw'
+        ? "充值申請已提交，請等待管理員審核到賬。"
+        : "Deposit request submitted. Please wait for admin approval."
+      );
 
       // Simulate blockchain delay for UI feel
       setTimeout(() => {
@@ -3026,9 +3054,12 @@ const DashboardView = ({
         setShowDepositModal(false);
         setPendingDepositAmount(null);
         setDepositInputAmount("");
-      }, 2000);
+      }, 1500);
     } catch (error) {
+      console.error("Deposit confirmation error:", error);
+      alert("Error: " + (error instanceof Error ? error.message : "Unknown error"));
       handleFirestoreError(error, OperationType.WRITE, 'deposit_flow');
+      setIsDepositing(false);
     }
   };
 
@@ -3718,9 +3749,9 @@ const DashboardView = ({
               )}
             </div>
 
-            <div className="grid grid-cols-3 gap-2 border-t border-white/10 pt-4 relative z-10">
+            <div className="grid grid-cols-3 gap-1 border-t border-white/10 pt-4 relative z-10">
               <div className="text-center">
-                <div className="text-[8px] font-bold text-white/50 uppercase tracking-wider mb-0.5 px-1 leading-tight">{t('yesterdayYield')}</div>
+                <div className="text-[7px] min-[365px]:text-[8px] font-bold text-white/50 uppercase tracking-tight mb-0.5 px-0.5 leading-tight">{t('yesterdayYield')}</div>
                 <motion.div 
                   animate={{ 
                     y: [1, 0, 0, 0],
@@ -3731,18 +3762,18 @@ const DashboardView = ({
                     duration: 3,
                     times: [0, 0.1, 0.8, 1] 
                   }}
-                  className="text-xs font-black text-green-400"
+                  className="text-[10px] min-[365px]:text-xs font-black text-green-400 truncate"
                 >
                   {!isNewUser ? `+$${yesterdayEarnings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$0.00"}
                 </motion.div>
               </div>
               <div className="text-center border-x border-white/10">
-                <div className="text-[8px] font-bold text-white/50 uppercase tracking-wider mb-0.5 px-1 leading-tight">{t('totalYield')}</div>
-                <div className="text-xs font-black text-white">{!isNewUser ? `+$${displayTotalEarnings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$0.00"}</div>
+                <div className="text-[7px] min-[365px]:text-[8px] font-bold text-white/50 uppercase tracking-tight mb-0.5 px-0.5 leading-tight">{t('totalYield')}</div>
+                <div className="text-[10px] min-[365px]:text-xs font-black text-white truncate">{!isNewUser ? `+$${displayTotalEarnings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$0.00"}</div>
               </div>
               <div className="text-center">
-                <div className="text-[8px] font-bold text-white/50 uppercase tracking-wider mb-0.5 px-1 leading-tight">{t('currentApy')}</div>
-                <div className="text-xs font-black text-editorial-gold">{liveApy}%</div>
+                <div className="text-[7px] min-[365px]:text-[8px] font-bold text-white/50 uppercase tracking-tight mb-0.5 px-0.5 leading-tight">{t('currentApy')}</div>
+                <div className="text-[10px] min-[365px]:text-xs font-black text-editorial-gold truncate">{liveApy}%</div>
               </div>
             </div>
           </>
@@ -4955,9 +4986,43 @@ export default function App() {
                         </button>
                       </div>
                       
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-6 leading-relaxed">
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-4 leading-relaxed">
                         {t('welcome')}
                       </p>
+
+                      {/* Prominent Selector Segment Tabs for Login vs Register */}
+                      {!authSuccess && (
+                        <div className="flex bg-gray-100 p-0.5 rounded-sm mb-5 border border-gray-200">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsLoginMode(true);
+                              setAuthError(null);
+                            }}
+                            className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-sm transition-all ${
+                              isLoginMode
+                                ? 'bg-white text-editorial-navy shadow-sm font-black'
+                                : 'text-gray-400 hover:text-gray-600 font-bold'
+                            }`}
+                          >
+                            {t('login')}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsLoginMode(false);
+                              setAuthError(null);
+                            }}
+                            className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-sm transition-all ${
+                              !isLoginMode
+                                ? 'bg-white text-editorial-navy shadow-sm font-black'
+                                : 'text-gray-400 hover:text-gray-600 font-bold'
+                            }`}
+                          >
+                            {t('register')}
+                          </button>
+                        </div>
+                      )}
                       
                       {authError && (
                         <div className="mb-4 p-3 bg-red-50 border-l-2 border-red-500 text-red-600 text-[10px] font-bold">
